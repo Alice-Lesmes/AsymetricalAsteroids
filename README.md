@@ -6,3 +6,8 @@ Well, one player controls and pilots the ship, avoiding danger and eliminating t
 
 **For Example:**
 - Adding power to the engines increases the ship's speed
+<br/>
+Contributors: <br/>
+- Alice Lesmes: Network and Kotlin Programmer
+- Ryan Wang: Pygame Programmer
+
