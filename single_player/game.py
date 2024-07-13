@@ -8,11 +8,17 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
+YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
+ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_yellow.png"))
+
+"""
 # note: ../ is used when testing in single_player folder. use ./assets when 
 # running game.py from root directory
 YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
 YELLOW_ENEMY = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
+"""
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -35,9 +41,6 @@ class Ship():
         self._rect = (self._x, self._y, self._width, self._height)
         self._vel = 5
         self._bullets = []
-
-        self.ship_img = YELLOW_SPACE_SHIP   # placeholder
-        self.hitbox = pygame.mask.from_surface(self.ship_img)
     
     def get_x(self):
         return self._x
@@ -53,6 +56,12 @@ class Ship():
 
 
 class Player(Ship):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
+        self.ship_img = YELLOW_SPACE_SHIP   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.ship_img)
+
     def draw(self, win) -> None:
         WIN.blit(self.ship_img, (self.get_x(), self.get_y()))
 
@@ -102,7 +111,13 @@ class Player(Ship):
 
 
 class Enemy(Ship):
-    def draw(self, win, img=YELLOW_ENEMY):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
+        self.ship_img = ENEMY_SPACE_SHIP   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.ship_img)
+
+    def draw(self, win, img=ENEMY_SPACE_SHIP):
         """Draw the enemy
         
         Parameters:
