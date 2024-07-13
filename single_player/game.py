@@ -31,7 +31,7 @@ LEVEL_ONE = {
 }
 
 LEVEL_TWO = {
-    "enemies": 5,
+    "enemies": 10,
     "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
         "../assets", "background_two.jpg")), (WIDTH, HEIGHT))
 }
