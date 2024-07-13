@@ -387,9 +387,10 @@ def main():
         # generate enemies
         # make sure enemies get killed when they reach the bottom???
         if len(enemies) == 0:
-            if level < 3:
+            if level < 2:
                 level += 1
-            wave_length == LEVELS[level].get("enemies")
+
+            wave_length = LEVELS[level].get("enemies")
             for i in range(wave_length):
                 # enemies are just generated wayyyyyyy off screen above
                 if random.randint(1, 4) == 3: # PLACEHOLDER
