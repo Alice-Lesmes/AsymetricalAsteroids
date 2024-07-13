@@ -439,7 +439,8 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     
     # draw shadow
     filter = pygame.surface.Surface((WIDTH, HEIGHT))
-    filter.fill(pygame.color.Color('Grey'))
+    # the less "grey" the colour actually is, the darker the environment
+    filter.fill(pygame.color.Color(250, 250, 250))
     # positions break on init
     positions = pygame.mouse.get_pos()
     # modify it so that the image centers with the middle of the mouse
