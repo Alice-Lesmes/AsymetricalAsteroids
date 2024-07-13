@@ -9,7 +9,7 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-root = "assets"
+root = "../assets"
 
 if platform.system() != "Windows":
     root = "../assets"
@@ -379,9 +379,41 @@ class Oxygen():
         return self.text
 
 
+class Light():
+    def __init__(self):
+        self.light = pygame.image.load(os.path.join(root, 'circle.png'))
+        self.scale = 10  # I think this is always being listened to?
+        self._starter_width = self.light.get_width()
+        self._starter_height = self.light.get_height()
+        self.size = (self._starter_width * self.scale,
+                     self._starter_height * self.scale)
+        self.light = pygame.transform.scale(self.light, self.size)
+        self._tick = 0
+
+    def update_light(self):
+        print(f"update size is {self.size} with scale {self.scale}")
+        self.light = pygame.transform.scale(self.light, self.size)
+    
+    def update_size(self):
+        self.size = (self._starter_width * self.scale,
+                     self._starter_height * self.scale)
+    
+    def decrease_scale(self, value: int) -> None:
+        if self.scale > 0+value:
+            self.scale -= value
+        self.update_size()
+    
+    def increase_scale(self, value: int) -> None:
+        self.scale += value
+        self.update_size()
+
+    def get_img(self):
+        return self.light
+
+
 # will need to modify the function to draw other players???
 def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
-                 level: int):
+                 level: int, light: "light"):
     # clear the previous box with blank
     win.blit(LEVELS[level].get("bg_image"), (0, 0))
 
@@ -404,8 +436,20 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     # rockets are 20x80
     # asteroids are 70 x 70
     # pygame.draw.rect(win, (255, 0, 0), (50, 50, 60, 50))
+    
+    # draw shadow
+    filter = pygame.surface.Surface((WIDTH, HEIGHT))
+    filter.fill(pygame.color.Color('Grey'))
+    # positions break on init
+    positions = pygame.mouse.get_pos()
+    # modify it so that the image centers with the middle of the mouse
+    new_position = (positions[0] - light.get_img().get_width()//2,
+                    positions[1] - light.get_img().get_height()//2)
+    filter.blit(light.get_img(), new_position)
+    win.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
     # update window
+    pygame.display.flip()
     pygame.display.update()
 
 
@@ -445,6 +489,7 @@ def main():
     
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
+    light = Light()
     
     shoot_counter = 0
 
@@ -465,6 +510,19 @@ def main():
             if event.type == pygame.USEREVENT:
                 shipOxygen.count()
                 shipOxygen.terminate()  # only stops the timer when it reaches 0
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_9:
+                    # decrease
+                    print("decrease pressed")
+                    light.decrease_scale(2)
+                    light.update_light()
+                
+                if event.key == pygame.K_0:
+                    # increase
+                    print("decrease pressed")
+                    light.increase_scale(2)
+                    light.update_light()
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
@@ -552,14 +610,14 @@ def main():
                 enemy.change_hor_vel()
 
         # redraw window
-        redrawWindow(win, p1, enemies, bullets, level)
+        redrawWindow(win, p1, enemies, bullets, level, light)
 
         # oxygen redraw (I have no idea if this even passes right)
         win.blit(font.render(shipOxygen.get_text(), True, (255, 255, 255)),
                  (32, 48))
         
         # I have no idea what this does but it makes the text appear
-        pygame.display.flip()
+        # pygame.display.flip()
         
         # for some reason setting this to 60 makes the timer less epileptic
         clock.tick(27)
