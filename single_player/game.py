@@ -335,6 +335,7 @@ class Projectile():
             WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
         #pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
 
+
 # drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
 class Oxygen():
     def __init__(self, counter: int):
@@ -343,6 +344,7 @@ class Oxygen():
             counter: the counter
         """
         self.activated = False
+        self.limit = 10
         self.counter, self.text = counter, str(counter).ljust(3)
 
     def start(self):
@@ -354,8 +356,15 @@ class Oxygen():
     
     def stop(self):
         """Stop the timer (and reset the count?)"""
+        pygame.time.set_timer(pygame.USEREVENT, 0)
+        # track how much time elapses????
+        if self.counter <= self.limit:
+            self.counter += 1
+
+    def terminate(self):
         if self.counter == 0:
             pygame.time.set_timer(pygame.USEREVENT, 0)
+            self.text = "You are dead"
 
     def count(self):
         self.counter -= 1
@@ -436,22 +445,26 @@ def main():
     
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
-    # starts the timer
-    # keys = pygame.key.get_pressed()
-    shipOxygen.start()
-
+    
     shoot_counter = 0
 
     while running:
         shoot_counter += 1
         # p2 = n.send(p1)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_1]:
+            # starts the timer
+            shipOxygen.start()
+
+        if keys[pygame.K_2]:
+            shipOxygen.stop()
 
         # for loop through the event queue
         for event in pygame.event.get():
             # Check for oxygen event
             if event.type == pygame.USEREVENT:
                 shipOxygen.count()
-                shipOxygen.stop()  # only stops the timer when it reaches 0
+                shipOxygen.terminate()  # only stops the timer when it reaches 0
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
