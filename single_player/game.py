@@ -158,6 +158,20 @@ class Enemy(Ship):
         elif self._x >= 450:
             self.change_hor_vel()
         self._x += self._hor_vel
+    
+    def damage_self(self, projectile: "Projectile") -> None:
+        """Damage the enemy"""
+        self._health -= projectile.get_damage()
+    
+    def alive(self):
+        """Returns if the enemy is alive"""
+        if self._health > 0:
+            return True
+        return False
+
+    def get_health(self):
+        return self._health
+
 
 class Basic(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -181,6 +195,7 @@ class Basic(Enemy):
     def shoot(self, bullets):
         # This enemy does not shoot
         return
+
 
 class Shooter(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -252,6 +267,17 @@ class Boss(Enemy):
         else:
             self.shoot_counter += 1
     
+    def move(self):
+        """Move the enemy downwards, unless it is at y  = 300"""
+        if self._y < 0:
+            self._y += self._vel
+
+        if self._x <= 10:
+            self.change_hor_vel()
+        elif self._x >= 450:
+            self.change_hor_vel()
+        self._x += self._hor_vel
+    
 
 # create projectile class
 class Projectile():
@@ -295,6 +321,9 @@ class Projectile():
 
     def damages_player(self):
         return self._damages_player
+    
+    def get_damage(self):
+        return self._damage
 
     def get_vel(self):
         return self._vel
@@ -391,7 +420,7 @@ def main():
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
-    level = -1  # what stage we are on
+    level = 2  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -455,6 +484,11 @@ def main():
                                 40,
                                 (255, 0, 0))
                 enemies.append(enemy)
+            
+            # level 3
+            if level == 2:
+                boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
+                enemies.append(boss)
 
         # game logic starts here
         # player movement
@@ -487,9 +521,15 @@ def main():
 
             enemy.shoot(bullets)
             for bullet in bullets:
+                # this needs to be health reduction rather than immediate
+                # removal
                 if has_collided(enemy, bullet):
                     if enemy in enemies:
-                        enemies.remove(enemy)
+                        enemy.damage_self(bullet)
+                        # print("enemy has been damaged with health " +
+                        #       f"{enemy.get_health()}")
+                        if not enemy.alive():
+                            enemies.remove(enemy)
 
             if has_collided(enemy, p1):
                 p1._health -= 10
