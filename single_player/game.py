@@ -234,7 +234,9 @@ class Boss(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
         super().__init__(x, y, width, height, colour, health)
-        self.ship_img = BOSS_SPACE_SHIP   # placeholder
+        # for some reason setting this to BOSS_SPACE_SHIP causes it to disappear
+        # so yay???
+        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
 
@@ -268,7 +270,8 @@ class Boss(Enemy):
             self.shoot_counter += 1
     
     def move(self):
-        """Move the enemy downwards, unless it is at y  = 300"""
+        """Move the enemy downwards"""
+        # unless the enemy is at the top
         if self._y < 0:
             self._y += self._vel
 
