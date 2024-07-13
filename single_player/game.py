@@ -80,7 +80,11 @@ class Ship():
     def add_y(self, value: int):
         self._y += value
 
-    def change_hor_vel(self, value: int):
+    def change_hor_vel(self):
+        """Chnage the direction in which the ship goes"""
+        self._hor_vel *= -1
+    
+    def change_power(self, value: int):
         """Change power, which is the offset controlled by P2."""
         self._power = value
 
