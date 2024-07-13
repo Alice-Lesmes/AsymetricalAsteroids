@@ -254,6 +254,7 @@ class Boss(Enemy):
         self.ship_img = BOSS_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+        self.max_health = health
     
     def __str__(self) -> str:
         return TYPE_BOSS
@@ -272,8 +273,12 @@ class Boss(Enemy):
         WIN.blit(img, (self.get_x(), self.get_y()))
     
     def healthbar(self, win):
+        # red bg
         pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
+        
+        # green (actual health)
+        # this 10 at the end needs to be changed to smth
+        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/self.max_health), 10))
 
     def shoot(self, bullets):  # list of bullets
         if self.shoot_counter == 30:
