@@ -219,7 +219,7 @@ class Boss(Enemy):
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
 
-    def draw(self, win, img=SHOOTER_SPACE_SHIP):
+    def draw(self, win, img=BOSS_SPACE_SHIP):
         """Draw the enemy
         
         Parameters:
