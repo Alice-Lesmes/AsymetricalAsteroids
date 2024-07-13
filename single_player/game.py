@@ -43,6 +43,11 @@ LEVEL_THREE = {
 
 LEVELS = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE]
 
+# used to adjust how strong the light around the player gets after
+# one increase/decrease
+START_LIGHT = 15
+LIGHT_SCALE = 10
+
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -385,7 +390,7 @@ class Oxygen():
 class Light():
     def __init__(self):
         self.light = pygame.image.load(os.path.join(root, 'circle.png'))
-        self.scale = 10  # I think this is always being listened to?
+        self.scale = START_LIGHT
         self._starter_width = self.light.get_width()
         self._starter_height = self.light.get_height()
         self.size = (self._starter_width * self.scale,
@@ -519,13 +524,13 @@ def main():
                 if event.key == pygame.K_9:
                     # decrease
                     print("decrease pressed")
-                    light.decrease_scale(2)
+                    light.decrease_scale(LIGHT_SCALE)
                     light.update_light()
                 
                 if event.key == pygame.K_0:
                     # increase
                     print("decrease pressed")
-                    light.increase_scale(2)
+                    light.increase_scale(LIGHT_SCALE)
                     light.update_light()
 
             # Check for QUIT event
