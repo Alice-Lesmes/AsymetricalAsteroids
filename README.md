@@ -12,5 +12,6 @@ Dependencies:<br/>
 
 Contributors: <br/>
 - Alice Lesmes: Network and Kotlin Programmer<br/>
-- Ryan Wang: Pygame Programmer
+- Ryan Wang: Pygame Programmer<br/>
+- Jackie Cheng: Pygame Programmer<br/>
 
