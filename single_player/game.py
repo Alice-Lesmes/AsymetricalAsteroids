@@ -8,10 +8,15 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-"""
+""" Used for run without debugging (windows)
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_yellow.png"))
+
+SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_blue.png"))
+PROJECTILE_BLUE = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
+PROJECTILE_GREEN = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
+
 """
 
 # note: ../ is used when testing in single_player folder. use ./assets when
@@ -20,7 +25,9 @@ YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.p
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
 
-
+SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_blue.png"))
+PROJECTILE_BLUE = pygame.image.load(os.path.join("../assets", "pixel_laser_blue.png"))
+PROJECTILE_GREEN = pygame.image.load(os.path.join("../assets", "pixel_laser_green.png"))
 
 
 class Ship():
@@ -43,6 +50,7 @@ class Ship():
 
         self._rect = (self._x, self._y, self._width, self._height)
         self._vel = 5
+        self._hor_vel = 3
         self._bullets = []
 
     def get_x(self):
@@ -56,6 +64,9 @@ class Ship():
 
     def add_y(self, value: int):
         self._y += value
+
+    def change_hor_vel(self):
+        self._hor_vel *= -1
 
 
 class Player(Ship):
@@ -90,7 +101,7 @@ class Player(Ship):
             bullets: list of all bullets in the game
         """
         # this needs to be modified
-        if len(bullets) >= 5:
+        if len(bullets) >= 50:
             return
 
         keys = pygame.key.get_pressed()  # not sure if I should convert to self
@@ -100,13 +111,9 @@ class Player(Ship):
             bullets.append(Projectile(self._x + self._width//2,
                                       self._y + self._height//2,
                                       6,
-                                      (0, 0, 255),
+                                      "green",
                                       -1,
                                       "normal"))
-
-            # I honestly have no idea how to give proper intervals to
-            # shooting, it literally shoots it like a beam :skull:
-            pygame.time.delay(100)
 
     def move_bullet(self):
         """I have no idea what I am doing"""
@@ -117,9 +124,23 @@ class Enemy(Ship):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
         super().__init__(x, y, width, height, colour, health)
+
+    def move(self):
+        """Move the enemy downwards"""
+        self._y += self._vel
+        if self._x <= 10:
+            self.change_hor_vel()
+        elif self._x >= 450:
+            self.change_hor_vel()
+        self._x += self._hor_vel
+
+class Basic(Enemy):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
         self.ship_img = ENEMY_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
-
+    
     def draw(self, win, img=ENEMY_SPACE_SHIP):
         """Draw the enemy
 
@@ -132,15 +153,48 @@ class Enemy(Ship):
         # hitbox has not been masked
         WIN.blit(img, (self.get_x(), self.get_y()))
 
-    def move(self):
-        """Move the enemy downwards"""
-        self._y += self._vel
+    def shoot(self, bullets):
+        # This enemy does not shoot
+        return
 
+class Shooter(Enemy):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
+        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.ship_img)
+        self.shoot_counter = 15
+
+    def draw(self, win, img=SHOOTER_SPACE_SHIP):
+        """Draw the enemy
+        
+        Parameters:
+            win: pygame window
+            img: image mask of the enemy
+        """
+        self.move()
+
+        # hitbox has not been masked
+        WIN.blit(img, (self.get_x(), self.get_y()))
+
+    def shoot(self, bullets):  # list of bullets
+        if self.shoot_counter == 30:
+            bullets.append(Projectile(self._x + self._width//2,
+                                      self._y + self._height//2,
+                                      6,
+                                      "blue",
+                                      1,
+                                      "normal"))
+            self.shoot_counter = 1
+        else:
+            self.shoot_counter += 1
+
+    
 
 # create projectile class
 class Projectile():
     def __init__(self, x: int, y: int, radius: int,
-                 colour: tuple[int], facing: int, element: str, damage=100):
+                 colour, facing: int, element: str, damage=100):
         """
         Parameters:
             x: x position of projectile
@@ -151,6 +205,10 @@ class Projectile():
             element: type of projectile (normal, fire, etc etc)
             damage: how much damage the projectile does (default 100)
         """
+
+        self.projectile_img = PROJECTILE_GREEN   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.projectile_img)
+
         self._x = x
         self._y = y
         self._radius = radius
@@ -177,8 +235,11 @@ class Projectile():
         return self._vel
 
     def draw(self, win):
-        pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
-
+        if self._colour == "blue":
+            WIN.blit(PROJECTILE_BLUE, (self.get_x() - 20, self.get_y() - 40))
+        elif self._colour == "green":
+            WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
+        #pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
 
 # drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
 class Oxygen():
@@ -279,7 +340,10 @@ def main():
     # starts the timer
     shipOxygen.start()
 
+    shoot_counter = 0
+
     while running:
+        shoot_counter += 1
         # p2 = n.send(p1)
 
         # for loop through the event queue
@@ -304,11 +368,18 @@ def main():
             wave_length += 5
             for i in range(wave_length):
                 # enemies are just generated wayyyyyyy off screen above
-                enemy = Enemy(random.randrange(50, WIDTH-100),
-                              random.randrange(-1500, -100),
-                              40,
-                              40,
-                              (255, 0, 0))
+                if random.randint(1, 4) == 3: # PLACEHOLDER
+                    enemy = Shooter(random.randrange(50, WIDTH-100),
+                                random.randrange(-1500, -100),
+                                40,
+                                40,
+                                (255, 0, 0))
+                else:
+                    enemy = Basic(random.randrange(50, WIDTH-100),
+                                random.randrange(-1500, -100),
+                                40,
+                                40,
+                                (255, 0, 0))
                 enemies.append(enemy)
 
         # game logic starts here
@@ -316,7 +387,9 @@ def main():
         p1.move()
 
         # bullet logic
-        p1.shoot(bullets)
+        if shoot_counter >= 6:
+            p1.shoot(bullets)
+            shoot_counter = 0
 
         for bullet in bullets:
             # this only shoots horizontally
@@ -329,9 +402,17 @@ def main():
                 bullets.pop(bullets.index(bullet))
 
         for enemy in enemies:
+            enemy.shoot(bullets)
+            for bullet in bullets:
+                if has_collided(enemy, bullet):
+                    if enemy in enemies:
+                        enemies.remove(enemy)
             if has_collided(enemy, p1):
                 p1._health -= 10
-                enemies.remove(enemy)
+                if enemy in enemies:
+                    enemies.remove(enemy)
+            if random.randint(1, 75) == 50:
+                enemy.change_hor_vel()
 
         # redraw window
         redrawWindow(win, p1, enemies, bullets)
