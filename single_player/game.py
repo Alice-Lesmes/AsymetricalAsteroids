@@ -177,13 +177,6 @@ class Projectile():
         pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
 
 
-# timer drawn from 
-class OyxgenTwo():
-    """Timer"""
-    def __init__(self):
-        pass
-
-
 # will need to modify the function to draw other players???
 def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
     # clear the previous box with blank
