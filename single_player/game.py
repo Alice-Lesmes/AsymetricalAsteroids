@@ -4,13 +4,15 @@ import random
 
 
 # these should be moved to constants
-WIDTH = 750
-HEIGHT = 1000
+WIDTH = 500
+HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
-
+# note: ../ is used when testing in single_player folder. use ./assets when 
+# running game.py from root directory
+YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
+YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
+YELLOW_ENEMY = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -100,10 +102,17 @@ class Player(Ship):
 
 
 class Enemy(Ship):
-    def draw(self, win):
-        """Draw the enemy"""
+    def draw(self, win, img=YELLOW_ENEMY):
+        """Draw the enemy
+        
+        Parameters:
+            win: pygame window
+            img: image mask of the enemy
+        """
         self.move()
-        WIN.blit(self.ship_img, (self.get_x(), self.get_y()))
+
+        # hitbox has not been masked
+        WIN.blit(img, (self.get_x(), self.get_y()))
 
     def move(self):
         """Move the enemy downwards"""
@@ -171,6 +180,12 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
         bullet.draw(win)
 
     # print(f"current state of bullets is {bullets}")
+    
+    # test size for images
+    # enemies are 50x50
+    # rockets are 20x80
+    # asteroids are 70 x 70
+    # pygame.draw.rect(win, (255, 0, 0), (50, 50, 60, 50))
 
     # update window
     pygame.display.update()
@@ -260,7 +275,8 @@ if __name__ == '__main__':
     pygame.init()
 
     # set display
-    win = pygame.display.set_mode((500, 500))
-
+    # fixed to use width and height constants
+    win = pygame.display.set_mode((WIDTH, HEIGHT))
+    
     pygame.display.set_caption("Bonjour")
     main()
