@@ -7,8 +7,28 @@ Well, one player controls and pilots the ship, avoiding danger and eliminating t
 **For Example:**
 - Adding power to the engines increases the ship's speed
 <br/>
+
+Requirements:<br/>
+- Android phone
+- Wi-Fi/Network that allows to connect to newly hosted local servers
+- Some device to run Python for the server and game
+
 Dependencies:<br/>
 - Pygame: enter "pip install pygame" (no quotations)<br/>
+
+<br/>
+Current Controls:
+- WASD: Movement<br/>
+- Spacebar: Shoot<br/>
+
+<br/>
+Testing only:<br/>
+- 1: Start O2 Countdown<br/>
+- 2: Stop and reset O2 Countdown<br/>
+- 9: Decrease radar visibility<br/>
+- 0: Increase radar visibility<br/>
+
+<br/>
 
 Contributors: <br/>
 - Alice Lesmes: Network and Kotlin Programmer<br/>
