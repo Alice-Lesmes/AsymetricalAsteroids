@@ -8,7 +8,7 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-""" Used for run without debugging (windows)
+# Used for run without debugging (windows)
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_yellow.png"))
@@ -17,17 +17,16 @@ SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_blue.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 
-"""
 
 # note: ../ is used when testing in single_player folder. use ./assets when
 # running game.py from root directory
-YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
-ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
+# YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
+# YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
+# ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
 
-SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_blue.png"))
-PROJECTILE_BLUE = pygame.image.load(os.path.join("../assets", "pixel_laser_blue.png"))
-PROJECTILE_GREEN = pygame.image.load(os.path.join("../assets", "pixel_laser_green.png"))
+# SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_blue.png"))
+# PROJECTILE_BLUE = pygame.image.load(os.path.join("../assets", "pixel_laser_blue.png"))
+# PROJECTILE_GREEN = pygame.image.load(os.path.join("../assets", "pixel_laser_green.png"))
 
 
 class Ship():
@@ -78,6 +77,11 @@ class Player(Ship):
 
     def draw(self, win) -> None:
         WIN.blit(self.ship_img, (self.get_x(), self.get_y()))
+        self.healthbar(win)
+
+    def healthbar(self, win):
+        pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
 
     def move(self) -> None:
         # add key listener
@@ -109,8 +113,8 @@ class Player(Ship):
         if keys[pygame.K_SPACE]:
             # at the moment it just shoots from the middle
             bullets.append(Projectile(self._x + self._width//2,
-                                      self._y + self._height//2,
-                                      6,
+                                      self._y + 10,
+                                      False,
                                       "green",
                                       -1,
                                       "normal"))
@@ -181,7 +185,7 @@ class Shooter(Enemy):
         if self.shoot_counter == 30:
             bullets.append(Projectile(self._x + self._width//2,
                                       self._y + self._height//2,
-                                      6,
+                                      True,
                                       "blue",
                                       1,
                                       "normal"))
@@ -193,7 +197,7 @@ class Shooter(Enemy):
 
 # create projectile class
 class Projectile():
-    def __init__(self, x: int, y: int, radius: int,
+    def __init__(self, x: int, y: int, damages_player: bool,
                  colour, facing: int, element: str, damage=100):
         """
         Parameters:
@@ -211,13 +215,13 @@ class Projectile():
 
         self._x = x
         self._y = y
-        self._radius = radius
+        self._damages_player = damages_player
         self._colour = colour
         self._facing = facing
         self._element = element
         self._damage = damage
 
-        self._vel = facing * 8  # facing specifies positive or negative
+        self._vel = facing * 12  # facing specifies positive or negative
 
     def get_x(self):
         return self._x
@@ -230,6 +234,9 @@ class Projectile():
 
     def add_y(self, value: int):
         self._y += value
+
+    def damages_player(self):
+        return self._damages_player
 
     def get_vel(self):
         return self._vel
@@ -392,6 +399,11 @@ def main():
             shoot_counter = 0
 
         for bullet in bullets:
+            if has_collided(bullet, p1):
+                if bullet.damages_player():
+                    p1._health -= 10
+                    bullets.remove(bullet)
+
             # this only shoots horizontally
             # if bullet.get_x() < MAX_BORDER and bullet.get_x() > MIN_BORDER:
             #     bullet.add_x(bullet.get_vel())
