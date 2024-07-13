@@ -19,6 +19,7 @@ YELLOW_SPACE_SHIP = pygame.image.load(os.path.join(root, "pixel_ship_yellow.png"
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_yellow.png"))
 
 SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_blue.png"))
+BOSS_SPACE_SHIP = pygame.image.load(os.path.join(root, "boss.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
 
@@ -60,10 +61,11 @@ class Ship():
         self._height = height
         self._colour = colour
         self._health = health
+        self._power = 0
 
         self._rect = (self._x, self._y, self._width, self._height)
         self._vel = 5
-        self._hor_vel = 3
+        self._hor_vel = 3 + self._power
         self._bullets = []
 
     def get_x(self):
@@ -78,8 +80,9 @@ class Ship():
     def add_y(self, value: int):
         self._y += value
 
-    def change_hor_vel(self):
-        self._hor_vel *= -1
+    def change_hor_vel(self, value: int):
+        """Change power, which is the offset controlled by P2."""
+        self._power = value
 
 
 class Player(Ship):
@@ -207,6 +210,43 @@ class Shooter(Enemy):
         else:
             self.shoot_counter += 1
 
+
+class Boss(Enemy):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
+        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.ship_img)
+        self.shoot_counter = 15
+
+    def draw(self, win, img=SHOOTER_SPACE_SHIP):
+        """Draw the enemy
+        
+        Parameters:
+            win: pygame window
+            img: image mask of the enemy
+        """
+        self.move()
+        self.healthbar(win)
+
+        # hitbox has not been masked
+        WIN.blit(img, (self.get_x(), self.get_y()))
+    
+    def healthbar(self, win):
+        pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
+
+    def shoot(self, bullets):  # list of bullets
+        if self.shoot_counter == 30:
+            bullets.append(Projectile(self._x + self._width//2,
+                                      self._y + self._height//2,
+                                      True,
+                                      "blue",
+                                      1,
+                                      "normal"))
+            self.shoot_counter = 1
+        else:
+            self.shoot_counter += 1
     
 
 # create projectile class
