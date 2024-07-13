@@ -26,9 +26,24 @@ BG = pygame.transform.scale(pygame.image.load(os.path.join("../assets",
 
 LEVEL_ONE = {
     "enemies": 5,
-    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join("../assets",
-                            "background_one.jpg")), (WIDTH, HEIGHT))
+    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
+        "../assets", "background_one.jpg")), (WIDTH, HEIGHT))
 }
+
+LEVEL_TWO = {
+    "enemies": 5,
+    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
+        "../assets", "background_two.jpg")), (WIDTH, HEIGHT))
+}
+
+LEVEL_THREE = {
+    "enemies": 15,
+    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
+        "../assets", "background_three.jpg")), (WIDTH, HEIGHT))
+}
+
+LEVELS = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE]
+
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -220,9 +235,10 @@ class Oxygen():
 
 
 # will need to modify the function to draw other players???
-def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
+def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
+                 level: int):
     # clear the previous box with blank
-    win.blit(BG, (0, 0))
+    win.blit(LEVELS[level].get("bg_image"), (0, 0))
 
     # draw player
     player.draw(win)
@@ -267,7 +283,7 @@ def main():
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     # enemy1 = Enemy(100, 0, 40, 40, (255, 0, 0))
     enemies = []
-    level = 1  # what stage we are on
+    level = -1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -306,9 +322,11 @@ def main():
             lost = True
 
         # generate enemies
+        # make sure enemies get killed when they reach the bottom???
         if len(enemies) == 0:
-            level += 1
-            wave_length += 5
+            if level < 3:
+                level += 1
+            wave_length == LEVELS[level].get("enemies")
             for i in range(wave_length):
                 # enemies are just generated wayyyyyyy off screen above
                 enemy = Enemy(random.randrange(50, WIDTH-100),
@@ -336,12 +354,17 @@ def main():
                 bullets.pop(bullets.index(bullet))
 
         for enemy in enemies:
+            # remove upon reaching the bottom
+            if enemy.get_y() > HEIGHT + 100:
+                enemies.remove(enemy)
+
+            # remove upon collision
             if has_collided(enemy, p1):
                 p1._health -= 10
                 enemies.remove(enemy)
 
         # redraw window
-        redrawWindow(win, p1, enemies, bullets)
+        redrawWindow(win, p1, enemies, bullets, level)
 
         # oxygen redraw (I have no idea if this even passes right)
         win.blit(font.render(shipOxygen.get_text(), True, (255, 255, 255)),
