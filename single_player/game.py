@@ -19,6 +19,7 @@ YELLOW_SPACE_SHIP = pygame.image.load(os.path.join(root, "pixel_ship_yellow.png"
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_yellow.png"))
 
 SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_blue.png"))
+BOSS_SPACE_SHIP = pygame.image.load(os.path.join(root, "boss.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
 
@@ -60,10 +61,11 @@ class Ship():
         self._height = height
         self._colour = colour
         self._health = health
+        self._power = 0
 
         self._rect = (self._x, self._y, self._width, self._height)
         self._vel = 5
-        self._hor_vel = 3
+        self._hor_vel = 3 + self._power
         self._bullets = []
 
     def get_x(self):
@@ -79,7 +81,12 @@ class Ship():
         self._y += value
 
     def change_hor_vel(self):
+        """Chnage the direction in which the ship goes"""
         self._hor_vel *= -1
+    
+    def change_power(self, value: int):
+        """Change power, which is the offset controlled by P2."""
+        self._power = value
 
 
 class Player(Ship):
@@ -151,6 +158,20 @@ class Enemy(Ship):
         elif self._x >= 450:
             self.change_hor_vel()
         self._x += self._hor_vel
+    
+    def damage_self(self, projectile: "Projectile") -> None:
+        """Damage the enemy"""
+        self._health -= projectile.get_damage()
+    
+    def alive(self):
+        """Returns if the enemy is alive"""
+        if self._health > 0:
+            return True
+        return False
+
+    def get_health(self):
+        return self._health
+
 
 class Basic(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -174,6 +195,7 @@ class Basic(Enemy):
     def shoot(self, bullets):
         # This enemy does not shoot
         return
+
 
 class Shooter(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -207,6 +229,54 @@ class Shooter(Enemy):
         else:
             self.shoot_counter += 1
 
+
+class Boss(Enemy):
+    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
+                 health=100) -> None:
+        super().__init__(x, y, width, height, colour, health)
+        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        self.hitbox = pygame.mask.from_surface(self.ship_img)
+        self.shoot_counter = 15
+
+    def draw(self, win, img=BOSS_SPACE_SHIP):
+        """Draw the enemy
+        
+        Parameters:
+            win: pygame window
+            img: image mask of the enemy
+        """
+        self.move()
+        self.healthbar(win)
+
+        # hitbox has not been masked
+        WIN.blit(img, (self.get_x(), self.get_y()))
+    
+    def healthbar(self, win):
+        pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
+
+    def shoot(self, bullets):  # list of bullets
+        if self.shoot_counter == 30:
+            bullets.append(Projectile(self._x + self._width//2,
+                                      self._y + self._height//2,
+                                      True,
+                                      "blue",
+                                      1,
+                                      "normal"))
+            self.shoot_counter = 1
+        else:
+            self.shoot_counter += 1
+    
+    def move(self):
+        """Move the enemy downwards, unless it is at y  = 300"""
+        if self._y < 0:
+            self._y += self._vel
+
+        if self._x <= 10:
+            self.change_hor_vel()
+        elif self._x >= 450:
+            self.change_hor_vel()
+        self._x += self._hor_vel
     
 
 # create projectile class
@@ -251,6 +321,9 @@ class Projectile():
 
     def damages_player(self):
         return self._damages_player
+    
+    def get_damage(self):
+        return self._damage
 
     def get_vel(self):
         return self._vel
@@ -274,7 +347,10 @@ class Oxygen():
 
     def start(self):
         """Start the timer"""
-        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_1]:
+            pygame.time.set_timer(pygame.USEREVENT, 1000)
     
     def stop(self):
         """Stop the timer (and reset the count?)"""
@@ -323,15 +399,17 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     # update window
     pygame.display.update()
 
-'''
-ent1 = one of the entities involved in the collision
-ent2 = the other entity
-'''
+
 def has_collided(ent1, ent2):
+    '''
+    ent1 = one of the entities involved in the collision
+    ent2 = the other entity
+    '''
     offset_x = ent2.get_x() - ent1.get_x()
     offset_y = ent2.get_y() - ent1.get_y()
     return ent1.hitbox.overlap(ent2.hitbox, (offset_x, offset_y)) != None
     # returns True if the entities touch, otherwise returns False
+
 
 def main():
     # Variable to keep our game loop running
@@ -341,9 +419,8 @@ def main():
     # startP = n.get_p()
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
-    # enemy1 = Enemy(100, 0, 40, 40, (255, 0, 0))
     enemies = []
-    level = -1  # what stage we are on
+    level = 2  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -360,6 +437,7 @@ def main():
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
     # starts the timer
+    # keys = pygame.key.get_pressed()
     shipOxygen.start()
 
     shoot_counter = 0
@@ -406,6 +484,11 @@ def main():
                                 40,
                                 (255, 0, 0))
                 enemies.append(enemy)
+            
+            # level 3
+            if level == 2:
+                boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
+                enemies.append(boss)
 
         # game logic starts here
         # player movement
@@ -438,9 +521,15 @@ def main():
 
             enemy.shoot(bullets)
             for bullet in bullets:
+                # this needs to be health reduction rather than immediate
+                # removal
                 if has_collided(enemy, bullet):
                     if enemy in enemies:
-                        enemies.remove(enemy)
+                        enemy.damage_self(bullet)
+                        # print("enemy has been damaged with health " +
+                        #       f"{enemy.get_health()}")
+                        if not enemy.alive():
+                            enemies.remove(enemy)
 
             if has_collided(enemy, p1):
                 p1._health -= 10
