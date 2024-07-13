@@ -9,7 +9,7 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-root = "assets"
+root = "../assets" # temp fix
 
 if platform.system() != "Windows":
     root = "../assets"
@@ -234,7 +234,7 @@ class Boss(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
         super().__init__(x, y, width, height, colour, health)
-        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        self.ship_img = BOSS_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
 
@@ -429,7 +429,7 @@ def main():
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
-    level = 2  # what stage we are on
+    level = 1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -478,7 +478,7 @@ def main():
         # generate enemies
         # make sure enemies get killed when they reach the bottom???
         if len(enemies) == 0:
-            if level < 2:
+            if level < len(LEVELS):
                 level += 1
 
             wave_length = LEVELS[level].get("enemies")
@@ -502,6 +502,7 @@ def main():
             if level == 2:
                 boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
                 enemies.append(boss)
+                print("the boss has spawned")
 
         # game logic starts here
         # player movement
