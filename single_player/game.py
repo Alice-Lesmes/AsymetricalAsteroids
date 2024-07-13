@@ -1,5 +1,6 @@
 import pygame
 import os
+import platform
 import random
 
 
@@ -8,25 +9,19 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Used for run without debugging (windows)
-YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
-ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_yellow.png"))
+root = "assets"
 
-SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_blue.png"))
-PROJECTILE_BLUE = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
-PROJECTILE_GREEN = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
+if platform.system() != "Windows":
+    root = "../assets"
 
+YELLOW_LASER = pygame.image.load(os.path.join(root, "pixel_laser_yellow.png"))
+YELLOW_SPACE_SHIP = pygame.image.load(os.path.join(root, "pixel_ship_yellow.png"))
+ENEMY_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_yellow.png"))
 
-# note: ../ is used when testing in single_player folder. use ./assets when
-# running game.py from root directory
-# YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
-# YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
-# ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
+SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_blue.png"))
+PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
+PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
 
-# SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_blue.png"))
-# PROJECTILE_BLUE = pygame.image.load(os.path.join("../assets", "pixel_laser_blue.png"))
-# PROJECTILE_GREEN = pygame.image.load(os.path.join("../assets", "pixel_laser_green.png"))
 
 
 class Ship():
