@@ -191,12 +191,21 @@ class Oxygen():
         self.counter, self.text = counter, str(counter).ljust(3)
 
     def start(self):
-        pass
+        """Start the timer"""
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
+    
+    def stop(self):
+        """Stop the timer (and reset the count?)"""
+        if self.counter == 0:
+            pygame.time.set_timer(pygame.USEREVENT, 0)
 
     def count(self):
         self.counter -= 1
         self.text = str(self.counter).ljust(3)
         # print(f"current state of counter is {self.counter}")
+    
+    def get_count(self):
+        return self.counter
 
     def get_text(self):
         # print(f"get text passing with {self.text}")
@@ -262,11 +271,13 @@ def main():
     MIN_BORDER = 0
     MAX_BORDER = 500
 
+    # lost logic
+    lost = False
+    
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
     # starts the timer
     shipOxygen.start()
-    pygame.time.set_timer(pygame.USEREVENT, 1000)
 
     while running:
         # p2 = n.send(p1)
@@ -276,11 +287,16 @@ def main():
             # Check for oxygen event
             if event.type == pygame.USEREVENT:
                 shipOxygen.count()
+                shipOxygen.stop()  # only stops the timer when it reaches 0
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
+
+        # listen for loss
+        if shipOxygen.get_count() == 0:
+            lost = True
 
         # generate enemies
         if len(enemies) == 0:
