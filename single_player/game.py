@@ -20,8 +20,15 @@ YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.p
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
 
+# level 1 bg
+BG = pygame.transform.scale(pygame.image.load(os.path.join("../assets",
+                            "background_one.jpg")), (WIDTH, HEIGHT))
 
-
+LEVEL_ONE = {
+    "enemies": 5,
+    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join("../assets",
+                            "background_one.jpg")), (WIDTH, HEIGHT))
+}
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -215,7 +222,7 @@ class Oxygen():
 # will need to modify the function to draw other players???
 def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
     # clear the previous box with blank
-    win.fill((0, 0, 0))
+    win.blit(BG, (0, 0))
 
     # draw player
     player.draw(win)
