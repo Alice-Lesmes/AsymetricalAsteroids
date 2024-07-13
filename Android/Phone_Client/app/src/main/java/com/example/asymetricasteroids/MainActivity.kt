@@ -1,6 +1,5 @@
 package com.example.asymetricasteroids
 
-import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,12 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,43 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.asymetricasteroids.ui.theme.AsymetricAsteroidsTheme
-import com.ziclix.python.sql.WarningEvent
-import net.razorvine.pickle.Pickler
-import net.razorvine.pickle.Unpickler
-import org.python.antlr.op.Mod
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.net.Socket
 
-
-object Test {
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val filename = args[0]
-        val inputStream: InputStream = FileInputStream(filename)
-        val unpickler = Unpickler()
-        val pickler = Pickler()
-
-        val data = unpickler.load(inputStream) as Map<String, Any>
-    }
-}
-// SOcket stuff
-
-
-
-
-/*fun server() {
-    val server = ServerSocket(8000)
-    val client = server.accept()
-    val output = PrintWriter(client.getOutputStream(), true)
-    val input = BufferedReader(InputStreamReader(client.inputStream))
-
-    output.println("${input.readLine()} back")
-}*/
-
-// UI AND MAIN
+// UI AND MAIN *stuff*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,9 +43,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AsymetricAsteroidsTheme {
+                // The data that all the code draws from
+                var dataManager = Data()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Alert()
-                    ModuleView()
+                    mainView(dataManager)
                     /*Button(onClick = { println("ALIVE?: " + client.isAlive()) }) {
                         Text(text = "IS ALIVE?")*/
 
@@ -93,111 +58,209 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun connect(addr : String, port: Int) {
-    val connected = true
-    println("Getting Client")
-    var client = Socket(addr, port)     // The connection to server
-    println("Connected to " + client)
-    while (connected)
-    {
 
-        var reply = "Hello"
-        val pickler = Pickler()     // Allows to pickle data
-        val unpickler = Unpickler()     // Allows to unpickle data
-        val received_data = unpickler.load(client.getInputStream())
-        client.outputStream.write(pickler.dumps(reply))     // Send back data
-        println("Receiving: " + unpickler.load(client.getInputStream()))
+@Composable
+fun mainView(data: Data) {
+    val SERVER_ADDRESS = "192.168.0.12"
+    val PORT = 8009
 
-        if (received_data.toString() == "")
-        {
-            client.close()
-            break
-        }
-    }
+    // Triggers on first launch and connects to server
+    Alert(SERVER_ADDRESS, PORT, data)
+
+    ModuleView(data)
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Alert() {
+fun Alert(addr: String, port: Int, data: Data) {
     var showAlert by remember {
         mutableStateOf(true)
     }
-    if (showAlert)
-    {
+    var CriticalServerError by remember {
+        mutableStateOf(false)
+    }
+    if (showAlert) {
         AlertDialog(
             onDismissRequest = { showAlert = false },
-            title = { Text("Welcome to the Automated Crew System!",
-                fontWeight = FontWeight.ExtraBold) },
-            text = { greetingAlertText() },
+            title = {
+                Text(
+                    "Welcome to the Automated Crew System!",
+                    fontWeight = FontWeight.ExtraBold
+                )
+            },
+            text = {
+                // WOW! Lore! Let's go!
+                greetingAlertText()
+            },
             confirmButton = {
-                Button(onClick = { showAlert = false;
-                    Thread({connect(addr = "192.168.0.222", 8000)}).start() }) {
+                Button(onClick = {
+                    showAlert = false;
+                    val client = Client(addr, port);
+                    // Attempt to connect to server
+                    try {
+                        // On a new thread so error doesn't get thrown and save main thread for UI
+                        Thread({ client.connect(data) }).start()
+                    } catch (e: Exception) {
+                        println("ERROR CONNECTING TO SERVER: " + e)
+                        CriticalServerError = true
+                    }
+                })
+                {
+                    // This is the text of the button
                     Text(text = "Good luck...")
                 }
             }
         )
     }
-
+    // If can't connect retry
+    if (CriticalServerError) {
+        AlertDialog(onDismissRequest = { CriticalServerError = false },
+            title = { Text("Error connecting to server") },
+            text = {
+                Text(
+                    "Check server is running and IP and PORT is correct\n" +
+                            "IP: $addr\nPORT: $port"
+                )
+            },
+            confirmButton = {
+                // System.exit should just quit the app
+                Button(onClick = { showAlert = true }) {
+                    Text(text = "Oh no... Reconnect!")
+                }
+            })
+    }
 }
 
 @Composable
-fun greetingAlertText()
-{
+fun greetingAlertText() {
+    // OMG THIS IS SO MUCH LORE! LOOK AT IT! LOOK AT THE LORE! LOOOOORRRE!
     Column {
-        Text(text = "No longer a need for manual oversight",
-            fontWeight = FontWeight.Light)
-        Row(modifier = Modifier.padding(top=10.dp, bottom= 10.dp)) {
-            Icon(imageVector = Icons.Filled.Warning, contentDescription = null, tint = Color.Red,
-                )
-            Text(text = "CRITICAL DAMAGE SUSTAINED TO: [AUTOMATED CREW SYSTEM]",
+        Text(
+            text = "No longer a need for manual oversight",
+            fontWeight = FontWeight.Light
+        )
+        Row(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)) {
+            Icon(
+                imageVector = Icons.Filled.Warning, contentDescription = null, tint = Color.Red,
+            )
+            Text(
+                text = "CRITICAL DAMAGE SUSTAINED TO: [AUTOMATED CREW SYSTEM]",
                 fontWeight = FontWeight.Bold, color = Color.Yellow
             )
-            Icon(imageVector = Icons.Filled.Warning, contentDescription = null, tint = Color.Red,
-                )
+            Icon(
+                imageVector = Icons.Filled.Warning, contentDescription = null, tint = Color.Red,
+            )
 
         }
         Text(text = "Manual resource allocation required\n")
 
-        Text(fontWeight = FontWeight.SemiBold, text = "Warning: Applying more power to a module than available may cause overcharge damage to the module requiring a restart")
+        Text(
+            fontWeight = FontWeight.SemiBold,
+            text = "Warning: Applying more power to a module than available may cause overcharge damage to the module requiring a restart"
+        )
         Text("\nTo manually reset ship module:\n\t1. Ensure [2] power is not in use\n\t2. Tap module name")
     }
 }
 
 @Composable
-fun MainView()
-{
-
-}
-
-@Composable
-fun ModuleView()
-{
+fun ModuleView(data: Data) {
     // Class of data, so can just grab stuff using methods -\_(<.<)_/-
-    var data = Data()
-    data.printAllData()
-    Column(modifier = Modifier
-        .padding(20.dp)) {
-        PowerText(data.getAvailablePower())
+    var power_left by remember {
+        mutableStateOf(data.getAvailablePower())
+    }
+    Column(
+        modifier = Modifier
+            .padding(20.dp)
+    ) {
         // Class of module
         var O2 = Module("O2", 2, data)
         var radar = Module("Radar", 2, data)
         var engines = Module("Engines", 2, data)
         // The actual UI
-        O2.statefulModule()
-        radar.statefulModule()
-        engines.statefulModule()
+        var o2Power by remember {
+            mutableStateOf(0)
+        }
+        var enginesPower by remember {
+            mutableStateOf(0)
+        }
+        var radarPower by remember {
+            mutableStateOf(0)
+        }
+        var availablePower by remember {
+            mutableStateOf(data.total_power)
+        }
+        PowerText(availablePower)
+        O2.statelessModule(
+            onIncrement = { o2Power++; availablePower-- },
+            onDecrement = { o2Power--; availablePower++ },
+            tapText = {
+                // This is bad code, but whatever, it works
+                if (o2Power == 0 && availablePower >= O2.max)
+                    {
+                        o2Power = O2.max
+                        availablePower -= o2Power
+
+                        data.updatePower(O2.name, o2Power)
+
+                    }
+                    else
+                    {
+                        availablePower += o2Power
+                        o2Power = 0
+                        data.updatePower(O2.name, o2Power)
+                    }},
+            available_power = availablePower,
+            currentPower = o2Power
+        )
+        engines.statelessModule(
+            onIncrement = { enginesPower++; availablePower--; data.updatePower(engines.name, enginesPower) },
+            onDecrement = { enginesPower--; availablePower++; data.updatePower(engines.name, enginesPower) },
+            tapText = {if (enginesPower == 0 && availablePower >= engines.max)
+            {
+                enginesPower = engines.max
+                availablePower -= enginesPower
+
+                data.updatePower(engines.name, enginesPower)
+
+            }
+            else
+            {
+                availablePower += enginesPower
+                enginesPower = 0
+            }},
+            available_power = availablePower,
+            currentPower = enginesPower
+        )
+        radar.statelessModule(
+            onIncrement = { radarPower++; availablePower--; data.updatePower(radar.name, radarPower) },
+            onDecrement = { radarPower--; availablePower++; data.updatePower(radar.name, radarPower) },
+            tapText = {if (radarPower == 0 && availablePower >= radar.max)
+            {
+                radarPower = radar.max
+                availablePower -= radarPower
+                data.updatePower(radar.name, radarPower)
+
+            }
+            else
+            {
+                availablePower += radarPower
+                radarPower = 0
+            }},
+            available_power = availablePower,
+            currentPower = radarPower
+        )
 
         ElementSelect(data)
-        Button(onClick = { data.printAllData() }) {
-            
-        }
+
+
     }
 }
+
+
+
 @Composable
-fun PowerText(total_power: Int)
-{
-    Text(text = "Total Power: " + total_power,
+fun PowerText(total_power: Int) {
+    Text(
+        text = "Total Power: " + total_power,
         fontSize = 40.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
@@ -206,82 +269,48 @@ fun PowerText(total_power: Int)
 }
 
 @Composable
-fun ElementSelect(data: Data)
-{
+fun WeaponText(current_weapon: String) {
+    Text(
+        text = "Current Weapon: $current_weapon",
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        modifier = Modifier.padding(bottom = 5.dp)
+    )
+}
+
+@Composable
+fun ElementSelect(data: Data) {
     var CurrentWeapon by remember { mutableStateOf("Standard") }
-    Row {
-        statefulElementalWeapon(name = "Standard", current_weapon = CurrentWeapon, data = data)
-        statefulElementalWeapon(name = "Element 1", current_weapon = CurrentWeapon, data = data)
-        statefulElementalWeapon(name = "Element 2", current_weapon = CurrentWeapon, data = data)
 
-    }
+    Column {
+        WeaponText(current_weapon = CurrentWeapon)
 
-}
+        Row(modifier = Modifier.fillMaxWidth()) {
+            for (weapon in arrayOf("Standard", "Element 1", "Element 2"))
+                ElementalWeapon(
+                    name = weapon,
+                    onButtonPress = { CurrentWeapon = weapon;
+                        data.updateElement(weapon) },
+                    modifier = Modifier.weight(1f))
 
-@Composable
-fun statefulElementalWeapon(name: String, current_weapon: String, data: Data)
-{
-    var CurrentWeapon by remember { mutableStateOf("Standard") }
-    ElementalWeapon(name = name, enabled = CurrentWeapon == name,
-        onButtonPress = {data.updateElement(name); CurrentWeapon = data.getWeaponElement()})
-}
 
-@Composable
-fun ElementalWeapon(name: String, enabled: Boolean, onButtonPress: () -> Unit)
-{
-    Button(onClick = { onButtonPress()}, modifier = Modifier.padding(15.dp)) {
-        Text(text = name,
-            fontWeight = if (enabled) FontWeight.Bold else FontWeight.Light
-        )
-
-    }
-}
-
-/*
-
-@Composable
-fun Module(name: String, max_power: Int)
-{
-
-    var current_power by sending_data[name]
-    var current_power_text by remember {
-        mutableStateOf("")
-    }
-    Row(modifier = Modifier.padding(20.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-
-        Button(onClick = {
-                sending_data[name]
-             }
-            , enabled = if (current_power == 0) false else true)
-            {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                )
-            }
-        Column(modifier = Modifier
-            .padding(10.dp)) {
-            Text(
-                text = name,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = if (current_power == 0) Color.Red else Color.White
-            )
-            Text(
-                text = if (current_power== 0)"" else "Power: " + current_power.toString()
-            )
         }
 
-        Button(onClick = {current_power++ }, enabled = if (current_power < max_power) true else false)
-        {
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = null,
-                )
-        }
+    }
+
+}
+
+@Composable
+fun ElementalWeapon(name: String, onButtonPress: () -> Unit, modifier: Modifier) {
+    Button(
+        onClick = { onButtonPress() },
+        modifier = Modifier
+            .padding(15.dp)
+    ) {
+        Text(text = name)
+
     }
 }
-*/
 
 @Preview(showBackground = true)
 @Composable

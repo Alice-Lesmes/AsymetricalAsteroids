@@ -14,10 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -29,13 +25,28 @@ class Module(val module: String, val max: Int, data: Data)
 {
     val name : String = module
     val max_power = max
-    var current_power : Int = 0
+    var current_power = 0
     var trial = data
     /*val available_power = data.getAvailablePower()
     var forward_data = data*/
 
+    fun tap_text_logic(available_power: Int)
+    {
+        if (current_power == 0 && available_power >= max)
+        {
+            current_power = max
+        }
+        else if (current_power == 1)
+        {
+            current_power = 0
+        }
+        else
+        {
+            current_power = 0
+        }
+    }
 
-    @Composable
+    /*@Composable
     fun statefulModule()
     {
         var current_power by remember {
@@ -63,19 +74,22 @@ class Module(val module: String, val max: Int, data: Data)
             available_power = available_power)
         trial.updatePower(module, current_power)
         trial.printAllData()
-    }
+    }*/
+
+
 
     @SuppressLint("NotConstructor")
     @Composable
     fun statelessModule(onIncrement: () -> Unit, onDecrement: () -> Unit, tapText: () -> Unit,
-                        current_power: Int,
-                        available_power: Int)
+                        available_power: Int, currentPower : Int)
     {
-        Row(modifier = Modifier.padding(top= 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
+        Row(modifier = Modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
         {
             Button(onClick = {
                 onDecrement();
-            }, enabled = if (current_power == 0) false else true,
+            }, enabled = currentPower != 0,
                 modifier = Modifier.weight(1f))
             {
                 Icon(
@@ -83,7 +97,8 @@ class Module(val module: String, val max: Int, data: Data)
                     contentDescription = null,
                 )
             }
-            Column(modifier = Modifier.weight(2f)
+            Column(modifier = Modifier
+                .weight(2f)
                 .padding(10.dp)) {
                 Text(
                     text = name,
@@ -91,18 +106,18 @@ class Module(val module: String, val max: Int, data: Data)
                     textAlign = TextAlign.Center,
 
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (current_power == 0) Color.Red else Color.White,
+                    color = if (currentPower == 0) Color.Red else Color.White,
                     modifier = Modifier.clickable { tapText() }
                 )
                 Text(
-                    text = if (current_power== 0)"" else "Power: " + current_power.toString()
+                    text = if (currentPower== 0)"" else "Power: " + currentPower.toString()
                 )
             }
 
             Button(onClick =
             {
                 onIncrement();},
-                enabled = if (current_power < max_power && available_power > 0) true else false,
+                enabled = if (currentPower < max_power && available_power > 0) true else false,
                 modifier = Modifier.weight(1f))
             {
                 Icon(
