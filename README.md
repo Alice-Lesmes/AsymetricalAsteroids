@@ -8,6 +8,11 @@ Well, one player controls and pilots the ship, avoiding danger and eliminating t
 - Adding power to the engines increases the ship's speed
 <br/>
 
+Requirements:<br/>
+- Android phone
+- Wi-Fi/Network that allows to connect to newly hosted local servers
+- Some device to run Python for the server and game
+
 Dependencies:<br/>
 - Pygame: enter "pip install pygame" (no quotations)<br/>
 
