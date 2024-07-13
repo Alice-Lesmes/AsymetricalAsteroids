@@ -274,7 +274,10 @@ class Oxygen():
 
     def start(self):
         """Start the timer"""
-        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_1]:
+            pygame.time.set_timer(pygame.USEREVENT, 1000)
     
     def stop(self):
         """Stop the timer (and reset the count?)"""
@@ -323,15 +326,17 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     # update window
     pygame.display.update()
 
-'''
-ent1 = one of the entities involved in the collision
-ent2 = the other entity
-'''
+
 def has_collided(ent1, ent2):
+    '''
+    ent1 = one of the entities involved in the collision
+    ent2 = the other entity
+    '''
     offset_x = ent2.get_x() - ent1.get_x()
     offset_y = ent2.get_y() - ent1.get_y()
     return ent1.hitbox.overlap(ent2.hitbox, (offset_x, offset_y)) != None
     # returns True if the entities touch, otherwise returns False
+
 
 def main():
     # Variable to keep our game loop running
@@ -341,7 +346,6 @@ def main():
     # startP = n.get_p()
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
-    # enemy1 = Enemy(100, 0, 40, 40, (255, 0, 0))
     enemies = []
     level = -1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
@@ -360,6 +364,7 @@ def main():
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
     # starts the timer
+    # keys = pygame.key.get_pressed()
     shipOxygen.start()
 
     shoot_counter = 0
