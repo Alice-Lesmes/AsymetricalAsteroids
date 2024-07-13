@@ -43,6 +43,10 @@ LEVEL_THREE = {
 
 LEVELS = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE]
 
+TYPE_ENEMY = "ENEMY"
+TYPE_BASIC = "BASIC"
+TYPE_SHOOTER = "SHOOTER"
+TYPE_BOSS = "BOSS"
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -149,6 +153,9 @@ class Enemy(Ship):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
         super().__init__(x, y, width, height, colour, health)
+    
+    def __str__(self):
+        return TYPE_ENEMY
 
     def move(self):
         """Move the enemy downwards"""
@@ -161,7 +168,9 @@ class Enemy(Ship):
     
     def damage_self(self, projectile: "Projectile") -> None:
         """Damage the enemy"""
-        self._health -= projectile.get_damage()
+        damage = projectile.get_damage()
+        print(self.__str__() + f" has taken {damage}")
+        self._health -= damage
     
     def alive(self):
         """Returns if the enemy is alive"""
@@ -179,6 +188,9 @@ class Basic(Enemy):
         super().__init__(x, y, width, height, colour, health)
         self.ship_img = ENEMY_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
+    
+    def __str__(self):
+        return TYPE_BASIC
     
     def draw(self, win, img=ENEMY_SPACE_SHIP):
         """Draw the enemy
@@ -204,6 +216,9 @@ class Shooter(Enemy):
         self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+    
+    def __str__(self):
+        return TYPE_SHOOTER
 
     def draw(self, win, img=SHOOTER_SPACE_SHIP):
         """Draw the enemy
@@ -232,13 +247,16 @@ class Shooter(Enemy):
 
 class Boss(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
+                 health=2000) -> None:
         super().__init__(x, y, width, height, colour, health)
         # for some reason setting this to BOSS_SPACE_SHIP causes it to disappear
         # so yay???
-        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        self.ship_img = BOSS_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+    
+    def __str__(self) -> str:
+        return TYPE_BOSS
 
     def draw(self, win, img=BOSS_SPACE_SHIP):
         """Draw the enemy
@@ -541,17 +559,25 @@ def main():
                 # this needs to be health reduction rather than immediate
                 # removal
                 if has_collided(enemy, bullet):
+                    # boss check
+                    if str(enemy) == "BOSS" and bullet.damages_player():
+                        continue
+
                     if enemy in enemies:
                         enemy.damage_self(bullet)
                         # print("enemy has been damaged with health " +
                         #       f"{enemy.get_health()}")
                         if not enemy.alive():
                             enemies.remove(enemy)
+                    
+                    # remove the bullet
+                    bullets.pop(bullets.index(bullet))
 
             if has_collided(enemy, p1):
                 p1._health -= 10
                 if enemy in enemies:
                     enemies.remove(enemy)
+
             if random.randint(1, 75) == 50:
                 enemy.change_hor_vel()
 
