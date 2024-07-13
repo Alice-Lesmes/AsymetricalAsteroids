@@ -73,6 +73,9 @@ class Ship():
 
     def get_y(self):
         return self._y
+    
+    def get_position(self) -> tuple[int]:
+        return (self._x, self._y)
 
     def add_x(self, value: int):
         self._x += value
@@ -442,8 +445,8 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     # the less "grey" the colour actually is, the darker the environment
     filter.fill(pygame.color.Color(250, 250, 250))
     # positions break on init
-    positions = pygame.mouse.get_pos()
-    # modify it so that the image centers with the middle of the mouse
+    positions = player.get_position()
+    # modify it so that the image centers with the middle of the ship
     new_position = (positions[0] - light.get_img().get_width()//2,
                     positions[1] - light.get_img().get_height()//2)
     filter.blit(light.get_img(), new_position)
