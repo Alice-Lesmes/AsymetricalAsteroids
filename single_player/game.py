@@ -8,20 +8,27 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+""" Used for run without debugging (windows)
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
 ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_yellow.png"))
+
 SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("assets", "enemy_blue.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 
 """
-# note: ../ is used when testing in single_player folder. use ./assets when 
+
+# note: ../ is used when testing in single_player folder. use ./assets when
 # running game.py from root directory
 YELLOW_LASER = pygame.image.load(os.path.join("../assets", "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "pixel_ship_yellow.png"))
-YELLOW_ENEMY = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
-"""
+ENEMY_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_yellow.png"))
+
+SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join("../assets", "enemy_blue.png"))
+PROJECTILE_BLUE = pygame.image.load(os.path.join("../assets", "pixel_laser_blue.png"))
+PROJECTILE_GREEN = pygame.image.load(os.path.join("../assets", "pixel_laser_green.png"))
+
 
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -45,7 +52,7 @@ class Ship():
         self._vel = 5
         self._hor_vel = 3
         self._bullets = []
-    
+
     def get_x(self):
         return self._x
 
@@ -136,7 +143,7 @@ class Basic(Enemy):
     
     def draw(self, win, img=ENEMY_SPACE_SHIP):
         """Draw the enemy
-        
+
         Parameters:
             win: pygame window
             img: image mask of the enemy
@@ -234,6 +241,38 @@ class Projectile():
             WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
         #pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
 
+# drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
+class Oxygen():
+    def __init__(self, counter: int):
+        """
+        Parameters:
+            counter: the counter
+        """
+        self.activated = False
+        self.counter, self.text = counter, str(counter).ljust(3)
+
+    def start(self):
+        """Start the timer"""
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
+    
+    def stop(self):
+        """Stop the timer (and reset the count?)"""
+        if self.counter == 0:
+            pygame.time.set_timer(pygame.USEREVENT, 0)
+
+    def count(self):
+        self.counter -= 1
+        self.text = str(self.counter).ljust(3)
+        # print(f"current state of counter is {self.counter}")
+    
+    def get_count(self):
+        return self.counter
+
+    def get_text(self):
+        # print(f"get text passing with {self.text}")
+        return self.text
+
+
 # will need to modify the function to draw other players???
 def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
     # clear the previous box with blank
@@ -252,7 +291,7 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int]):
         bullet.draw(win)
 
     # print(f"current state of bullets is {bullets}")
-    
+
     # test size for images
     # enemies are 50x50
     # rockets are 20x80
@@ -284,7 +323,7 @@ def main():
     enemies = []
     level = 1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
-    
+
     # I am hopefully gonna move this out of main
     bullets = []  # store all current bullets
 
@@ -293,20 +332,36 @@ def main():
     MIN_BORDER = 0
     MAX_BORDER = 500
 
+    # lost logic
+    lost = False
+    
+    #  initialise external modules that are controlled by phone
+    shipOxygen = Oxygen(10)
+    # starts the timer
+    shipOxygen.start()
+
     shoot_counter = 0
 
     while running:
-        clock.tick(27)
         shoot_counter += 1
         # p2 = n.send(p1)
+
         # for loop through the event queue
         for event in pygame.event.get():
+            # Check for oxygen event
+            if event.type == pygame.USEREVENT:
+                shipOxygen.count()
+                shipOxygen.stop()  # only stops the timer when it reaches 0
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-        
+
+        # listen for loss
+        if shipOxygen.get_count() == 0:
+            lost = True
+
         # generate enemies
         if len(enemies) == 0:
             level += 1
@@ -362,13 +417,25 @@ def main():
         # redraw window
         redrawWindow(win, p1, enemies, bullets)
 
+        # oxygen redraw (I have no idea if this even passes right)
+        win.blit(font.render(shipOxygen.get_text(), True, (255, 255, 255)),
+                 (32, 48))
+        
+        # I have no idea what this does but it makes the text appear
+        pygame.display.flip()
+        
+        # for some reason setting this to 60 makes the timer less epileptic
+        clock.tick(27)
+
 
 if __name__ == '__main__':
     pygame.init()
 
+    # set font
+    font = pygame.font.SysFont('Monospace', 30)
     # set display
     # fixed to use width and height constants
     win = pygame.display.set_mode((WIDTH, HEIGHT))
-    
+
     pygame.display.set_caption("Bonjour")
     main()
