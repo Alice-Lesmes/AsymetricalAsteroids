@@ -8,7 +8,6 @@ from constants import *
 # from single_player.game import Player
 from game import Player
 import ast      # This is to convert string -> dict
-
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
 port = SERVER_PORT
@@ -35,6 +34,7 @@ player_data = [# Default data for the phone (changes when phone says so IG)
         'Engines': 1,
         'Radar': 1},
     'weapons': 'Standard'}
+
 ]
 
 def threaded_client(conn: socket.socket, player : int):
