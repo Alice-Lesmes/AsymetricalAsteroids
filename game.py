@@ -223,7 +223,7 @@ class Shooter(Enemy):
 
 class Boss(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=2000) -> None:
+                 health=5000) -> None:
         super().__init__(x, y, width, height, colour, health)
         # for some reason setting this to BOSS_SPACE_SHIP causes it to disappear
         # so yay???
@@ -505,7 +505,7 @@ def main():
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
-    level = 1  # what stage we are on
+    level = -1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -690,5 +690,5 @@ if __name__ == '__main__':
     # fixed to use width and height constants
     win = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    pygame.display.set_caption("Bonjour")
+    pygame.display.set_caption("Asymetrical Asteroids")
     main()
