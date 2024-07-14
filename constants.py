@@ -89,6 +89,14 @@ BULLET_IMG_DATA = {
 
 STARTER_BULLET = "Standard"
 
+ASTEROID_TYPES = ["Red", "Blue", "Green"]
+
+ASTEROID_IMG_DATA = {
+    "Red": ASTEROID_RED,
+    "Blue": ASTEROID_BLUE,
+    "Green": ASTEROID_GREEN
+}
+
 ENGINE_POWER = {
     0: 0,
     1: 7,
