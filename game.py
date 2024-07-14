@@ -3,7 +3,7 @@ import os
 import random
 from constants import *
 from network import Network
-from ships import *
+from ship import *
 from projectile import *
 from o2 import *
 from light import *
