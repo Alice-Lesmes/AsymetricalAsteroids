@@ -16,6 +16,11 @@ Requirements:<br/>
 Dependencies:<br/>
 - Pygame: enter "pip install pygame" (no quotations)<br/>
 
+## How to run Locally
+Run threadedServer.py<br/>
+Run game.py<br/>
+Profit
+
 <br/>
 Current Controls:
 - WASD: Movement<br/>
@@ -25,6 +30,7 @@ Current Controls:
 Testing only:<br/>
 - 1: Start O2 Countdown<br/>
 - 2: Stop and reset O2 Countdown<br/>
+- 8: Toggle Weapon Element<br/>
 - 9: Decrease radar visibility<br/>
 - 0: Increase radar visibility<br/>
 
