@@ -162,6 +162,7 @@ class Basic(Enemy):
         super().__init__(x, y, width, height, colour, health)
         self.ship_img = ENEMY_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
+        self.dieoncollision = True
     
     def __str__(self):
         return TYPE_BASIC
@@ -190,6 +191,7 @@ class Shooter(Enemy):
         self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+        self.dieoncollision = True
     
     def __str__(self):
         return TYPE_SHOOTER
@@ -230,6 +232,7 @@ class Boss(Enemy):
         self.shoot_counter = 15
         self.max_health = health
         self.start_attack = False
+        self.dieoncollision = False
     
     def __str__(self) -> str:
         return TYPE_BOSS
@@ -658,7 +661,8 @@ def main():
             if has_collided(enemy, p1):
                 p1._health -= 10
                 if enemy in enemies:
-                    enemies.remove(enemy)
+                    if enemy.dieoncollision == True:
+                        enemies.remove(enemy)
 
             if random.randint(1, 75) == 50:
                 enemy.change_hor_vel()
