@@ -33,6 +33,10 @@ PROJECTILE_RED = pygame.image.load(os.path.join(root, "pixel_laser_red.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
 
+ASTEROID_RED = pygame.image.load(os.path.join(root, "asteroid_red.png"))
+ASTEROID_BLUE = pygame.image.load(os.path.join(root, "asteroid_blue.png"))
+ASTEROID_GREEN = pygame.image.load(os.path.join(root, "asteroid_green.png"))
+
 LEVEL_ONE = {
     "enemies": 5,
     "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
