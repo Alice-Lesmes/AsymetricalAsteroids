@@ -2,6 +2,7 @@ import pygame
 import os
 import random
 from constants import *
+# from network import *
 
 
 class Ship():
@@ -21,11 +22,10 @@ class Ship():
         self._height = height
         self._colour = colour
         self._health = health
-        self._power = 0
 
         self._rect = (self._x, self._y, self._width, self._height)
         self._vel = 5
-        self._hor_vel = 3 + self._power
+        self._hor_vel = 3
         self._bullets = []
 
     def get_x(self):
@@ -46,13 +46,6 @@ class Ship():
     def change_hor_vel(self):
         """Chnage the direction in which the ship goes"""
         self._hor_vel *= -1
-    
-    def change_power(self, value: int):
-        """Change power, which is the offset controlled by P2.
-        
-        Okay tbh I have no idea what this does anymore (Ryan)
-        """
-        self._power = value
 
 
 class Player(Ship):
@@ -116,6 +109,14 @@ class Player(Ship):
     def get_bullet_type(self):
         """I don't even know if I need this"""
         return self.bullet_type
+
+    def change_engine_power(self, value: int) -> None:
+        """Change the engine power (horizontal velocity)
+        
+        value should only be 0, 1, 2"""
+        if value in [0, 1, 2]:
+            self._vel = ENGINE_POWER[value]
+            print(f"new engine power is {self._vel}")
 
     def move_bullet(self):
         """I have no idea what I am doing"""
@@ -394,14 +395,21 @@ class Light():
         self.light = pygame.transform.scale(self.light, self.size)
         self._tick = 0
 
-    def update_light(self):
-        print(f"update size is {self.size} with scale {self.scale}")
-        self.light = pygame.transform.scale(self.light, self.size)
+    def update_light(self, value: int) -> None:
+        """
+        value should only be 0, 1 or 2
+        """
+        if value in [0, 1, 2]:
+            self.scale = RADAR_POWER.get(value)
+            self.update_size()
+            print(f"update size is {self.size} with scale {self.scale}")
+            self.light = pygame.transform.scale(self.light, self.size)
     
     def update_size(self):
         self.size = (self._starter_width * self.scale,
                      self._starter_height * self.scale)
     
+    # increase and decrease functions are now deprecated
     def decrease_scale(self, value: int) -> None:
         if self.scale > 0+value:
             self.scale -= value
@@ -410,6 +418,8 @@ class Light():
     def increase_scale(self, value: int) -> None:
         self.scale += value
         self.update_size()
+    
+    # find a function to handle 0, 1, 2
 
     def get_img(self):
         return self.light
@@ -482,7 +492,9 @@ def main():
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
+    engine_cycle = 0
     bullet_cycle = 0
+    light_cycle = 0
     bullets = []  # store all current bullets
 
     # temporary constants used to define the game window
@@ -519,16 +531,12 @@ def main():
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_9:
-                    # decrease
-                    print("decrease pressed")
-                    light.decrease_scale(LIGHT_SCALE)
-                    light.update_light()
-                
-                if event.key == pygame.K_0:
-                    # increase
-                    print("decrease pressed")
-                    light.increase_scale(LIGHT_SCALE)
-                    light.update_light()
+                    if light_cycle == 2:
+                        light_cycle = 0
+                    else:
+                        light_cycle += 1
+
+                    light.update_light(light_cycle)
                 
                 if event.key == pygame.K_8:
                     if bullet_cycle == 3:
@@ -537,6 +545,15 @@ def main():
                         bullet_cycle += 1
 
                     p1.change_bullet(BULLET_TYPES[bullet_cycle])
+                
+                if event.key == pygame.K_7:
+                    if engine_cycle == 2:
+                        engine_cycle = 0
+                    else:
+                        engine_cycle += 1
+                    
+                    p1.change_engine_power(engine_cycle)
+                    
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
