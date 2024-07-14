@@ -62,7 +62,12 @@ TYPE_BOSS = "BOSS"
 # used to adjust how strong the light around the player gets after
 # one increase/decrease
 START_LIGHT = 15
-LIGHT_SCALE = 10
+
+RADAR_POWER = {
+    0: 5,
+    1: 15,
+    2: 30
+}
 
 BULLET_TYPES = [
     "Standard",
@@ -79,3 +84,9 @@ BULLET_IMG_DATA = {
 }
 
 STARTER_BULLET = "Standard"
+
+ENGINE_POWER = {
+    0: 0,
+    1: 7,
+    2: 12
+}
