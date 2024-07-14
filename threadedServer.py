@@ -61,7 +61,7 @@ def threaded_client(conn: socket.socket, player : int):
             break
     print("Lost connection")
     conn.close()
-    return 
+    return
 
 
 current_player = 0

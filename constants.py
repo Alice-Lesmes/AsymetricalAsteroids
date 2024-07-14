@@ -33,6 +33,12 @@ PROJECTILE_RED = pygame.image.load(os.path.join(root, "pixel_laser_red.png"))
 PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
 PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
 
+ASTEROID_RED = pygame.image.load(os.path.join(root, "asteroid_red.png"))
+ASTEROID_BLUE = pygame.image.load(os.path.join(root, "asteroid_blue.png"))
+ASTEROID_GREEN = pygame.image.load(os.path.join(root, "asteroid_green.png"))
+
+ROCKET_IMG = pygame.image.load(os.path.join(root, "missile.png"))
+
 LEVEL_ONE = {
     "enemies": 5,
     "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
@@ -84,6 +90,14 @@ BULLET_IMG_DATA = {
 }
 
 STARTER_BULLET = "Standard"
+
+ASTEROID_TYPES = ["Red", "Blue", "Green"]
+
+ASTEROID_IMG_DATA = {
+    "Red": ASTEROID_RED,
+    "Blue": ASTEROID_BLUE,
+    "Green": ASTEROID_GREEN
+}
 
 ENGINE_POWER = {
     0: 0,
