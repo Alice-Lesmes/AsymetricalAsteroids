@@ -4,7 +4,10 @@ import pygame
 
 # Constants
 
-SERVER_ADDRESS = "192.168.200.168"
+# replace the server address with the local IP
+# on windows use ipconfig --all
+# on ubuntu use ip a
+SERVER_ADDRESS = "192.168.200.169"
 SERVER_PORT = 8000
 
 BYTE_SIZE = 2048*2048
@@ -59,7 +62,12 @@ TYPE_BOSS = "BOSS"
 # used to adjust how strong the light around the player gets after
 # one increase/decrease
 START_LIGHT = 15
-LIGHT_SCALE = 10
+
+RADAR_POWER = {
+    0: 5,
+    1: 15,
+    2: 30
+}
 
 BULLET_TYPES = [
     "Standard",
@@ -76,3 +84,9 @@ BULLET_IMG_DATA = {
 }
 
 STARTER_BULLET = "Standard"
+
+ENGINE_POWER = {
+    0: 0,
+    1: 7,
+    2: 12
+}

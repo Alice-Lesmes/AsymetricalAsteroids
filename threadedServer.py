@@ -35,6 +35,7 @@ player_data = [# Default data for the phone (changes when phone says so IG)
         'Engines': 1,
         'Radar': 1},
     'weapons': 'Standard'}
+
 ]
 
 def threaded_client(conn: socket.socket, player : int):

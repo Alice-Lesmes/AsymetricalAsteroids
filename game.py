@@ -8,9 +8,6 @@ from projectile import *
 from o2 import *
 from light import *
 
-
-
-
 # will need to modify the function to draw other players???
 def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
                  level: int, light: "light"):
@@ -80,7 +77,9 @@ def main():
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
+    engine_cycle = 0
     bullet_cycle = 0
+    light_cycle = 0
     bullets = []  # store all current bullets
 
     # temporary constants used to define the game window
@@ -119,16 +118,12 @@ def main():
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_9:
-                    # decrease
-                    print("decrease pressed")
-                    light.decrease_scale(LIGHT_SCALE)
-                    light.update_light()
-                
-                if event.key == pygame.K_0:
-                    # increase
-                    print("decrease pressed")
-                    light.increase_scale(LIGHT_SCALE)
-                    light.update_light()
+                    if light_cycle == 2:
+                        light_cycle = 0
+                    else:
+                        light_cycle += 1
+
+                    light.update_light(light_cycle)
                 
                 if event.key == pygame.K_8:
                     if bullet_cycle == 3:
@@ -137,6 +132,15 @@ def main():
                         bullet_cycle += 1
 
                     p1.change_bullet(BULLET_TYPES[bullet_cycle])
+                
+                if event.key == pygame.K_7:
+                    if engine_cycle == 2:
+                        engine_cycle = 0
+                    else:
+                        engine_cycle += 1
+                    
+                    p1.change_engine_power(engine_cycle)
+                    
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
