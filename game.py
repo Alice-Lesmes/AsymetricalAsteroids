@@ -1,60 +1,7 @@
 import pygame
 import os
-import platform
 import random
-
-
-# these should be moved to constants
-WIDTH = 500
-HEIGHT = 600
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-
-
-root = "assets" # temp fix
-
-
-if platform.system() != "Windows":
-    root = "assets"
-
-YELLOW_LASER = pygame.image.load(os.path.join(root, "pixel_laser_yellow.png"))
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join(root, "pixel_ship_yellow.png"))
-ENEMY_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_yellow.png"))
-
-SHOOTER_SPACE_SHIP = pygame.image.load(os.path.join(root, "enemy_blue.png"))
-BOSS_SPACE_SHIP = pygame.image.load(os.path.join(root, "boss.png"))
-PROJECTILE_BLUE = pygame.image.load(os.path.join(root, "pixel_laser_blue.png"))
-PROJECTILE_GREEN = pygame.image.load(os.path.join(root, "pixel_laser_green.png"))
-
-LEVEL_ONE = {
-    "enemies": 5,
-    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
-        root, "background_one.jpg")), (WIDTH, HEIGHT))
-}
-
-LEVEL_TWO = {
-    "enemies": 10,
-    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
-        root, "background_two.jpg")), (WIDTH, HEIGHT))
-}
-
-LEVEL_THREE = {
-    "enemies": 15,
-    "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
-        root, "background_three.jpg")), (WIDTH, HEIGHT))
-}
-
-LEVELS = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE]
-
-
-TYPE_ENEMY = "ENEMY"
-TYPE_BASIC = "BASIC"
-TYPE_SHOOTER = "SHOOTER"
-TYPE_BOSS = "BOSS"
-
-# used to adjust how strong the light around the player gets after
-# one increase/decrease
-START_LIGHT = 15
-LIGHT_SCALE = 10
+from constants import *
 
 
 class Ship():
@@ -101,7 +48,10 @@ class Ship():
         self._hor_vel *= -1
     
     def change_power(self, value: int):
-        """Change power, which is the offset controlled by P2."""
+        """Change power, which is the offset controlled by P2.
+        
+        Okay tbh I have no idea what this does anymore (Ryan)
+        """
         self._power = value
 
 
@@ -111,6 +61,7 @@ class Player(Ship):
         super().__init__(x, y, width, height, colour, health)
         self.ship_img = YELLOW_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
+        self.bullet_type = STARTER_BULLET
 
     def draw(self, win) -> None:
         WIN.blit(self.ship_img, (self.get_x(), self.get_y()))
@@ -148,13 +99,23 @@ class Player(Ship):
         keys = pygame.key.get_pressed()  # not sure if I should convert to self
 
         if keys[pygame.K_SPACE]:
-            # at the moment it just shoots from the middle
             bullets.append(Projectile(self._x + self._width//2,
                                       self._y + 10,
                                       False,
                                       "green",
                                       -1,
-                                      "normal"))
+                                      self.bullet_type))
+            print(f"Player shot bullet with type {self.bullet_type}")
+
+    def change_bullet(self, bullet: str) -> None:
+        """Change the bullet type/element"""
+        if bullet in BULLET_TYPES:
+            self.bullet_type = bullet
+            print(f"Bullet type has been changed to {bullet}")
+
+    def get_bullet_type(self):
+        """I don't even know if I need this"""
+        return self.bullet_type
 
     def move_bullet(self):
         """I have no idea what I am doing"""
@@ -213,7 +174,7 @@ class Basic(Enemy):
         """
         self.move()
 
-        # hitbox has not been masked
+        # hitbox has not been masked (wait but it has?)
         WIN.blit(img, (self.get_x(), self.get_y()))
 
     def shoot(self, bullets):
@@ -251,7 +212,7 @@ class Shooter(Enemy):
                                       True,
                                       "blue",
                                       1,
-                                      "normal"))
+                                      "Standard"))
             self.shoot_counter = 1
         else:
             self.shoot_counter += 1
@@ -267,6 +228,7 @@ class Boss(Enemy):
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
         self.max_health = health
+        self.start_attack = False
     
     def __str__(self) -> str:
         return TYPE_BOSS
@@ -299,7 +261,7 @@ class Boss(Enemy):
                                       True,
                                       "blue",
                                       1,
-                                      "normal"))
+                                      "Standard"))
             self.shoot_counter = 1
         else:
             self.shoot_counter += 1
@@ -332,7 +294,7 @@ class Projectile():
             damage: how much damage the projectile does (default 100)
         """
 
-        self.projectile_img = PROJECTILE_GREEN   # placeholder
+        self.projectile_img = BULLET_IMG_DATA.get(element)
         self.hitbox = pygame.mask.from_surface(self.projectile_img)
 
         self._x = x
@@ -367,10 +329,14 @@ class Projectile():
         return self._vel
 
     def draw(self, win):
-        if self._colour == "blue":
-            WIN.blit(PROJECTILE_BLUE, (self.get_x() - 20, self.get_y() - 40))
-        elif self._colour == "green":
-            WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
+        img = BULLET_IMG_DATA.get(self._element)
+        WIN.blit(img, (self.get_x() - 20, self.get_y() - 40))
+
+        # OLD
+        # if self._colour == "blue":
+        #     WIN.blit(PROJECTILE_BLUE, (self.get_x() - 20, self.get_y() - 40))
+        # elif self._colour == "green":
+        #     WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
         #pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
 
 
@@ -509,13 +475,14 @@ def main():
     clock = pygame.time.Clock()
     # n = Network()
     # startP = n.get_p()
-    n = Network()
+
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
     level = 1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
+    bullet_cycle = 0
     bullets = []  # store all current bullets
 
     # temporary constants used to define the game window
@@ -562,6 +529,14 @@ def main():
                     print("decrease pressed")
                     light.increase_scale(LIGHT_SCALE)
                     light.update_light()
+                
+                if event.key == pygame.K_8:
+                    if bullet_cycle == 3:
+                        bullet_cycle = 0
+                    else:
+                        bullet_cycle += 1
+
+                    p1.change_bullet(BULLET_TYPES[bullet_cycle])
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
