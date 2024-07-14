@@ -208,7 +208,7 @@ class Shooter(Enemy):
 
     def shoot(self, bullets):  # list of bullets
         if self.shoot_counter == 30:
-            bullets.append(Projectile(self._x + self._width//2,
+            bullets.append(Rocket(self._x + self._width//2,
                                       self._y + self._height//2,
                                       True,
                                       "blue",
@@ -349,9 +349,11 @@ class Asteroid(Projectile):
     def set_img(self):
         self.projectile_img = ASTEROID_IMG_DATA.get(self._element)
 
-    def draw(self, win):
-        WIN.blit(self.projectile_img, (self.get_x() - 20, self.get_y() - 40))
 
+class Rocket(Projectile):
+    def set_img(self):
+        rocket = ROCKET_IMG.copy()
+        self.projectile_img = pygame.transform.flip(rocket, False, True)
 
 # drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
 class Oxygen():
@@ -639,8 +641,8 @@ def main():
                 # this needs to be health reduction rather than immediate
                 # removal
                 if has_collided(enemy, bullet):
-                    # boss check
-                    if str(enemy) == "BOSS" and bullet.damages_player():
+                    # dont damage enemies if it is their own weaponry
+                    if bullet.damages_player():
                         continue
 
                     if enemy in enemies:
