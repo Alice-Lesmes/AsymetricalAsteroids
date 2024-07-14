@@ -7,6 +7,7 @@ import pickle
 from constants import *
 # from single_player.game import Player
 from single_player.game import Player
+import ast      # This is to convert string -> dict
 
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
@@ -27,11 +28,14 @@ print("Waiting for a connection. Server Started!")
 # If the user is the first Player, send the other one, vice versa
 # Doesn't really matter what's in here, just make sure only 2 for now
 # Otherwise have to change the logic of the server
-player_data = [
-    Player(0, 0, 50, 50, "Red", 100),
-    Player(50,50,60,60, "Green", 95)
+player_data = [# Default data for the phone (changes when phone says so IG)
+    "El Meun Same-Taishi strikes again",      # Data to send to phone(useless)
+    {'modules' : {      
+        'O2': 2,
+        'Engines': 1,
+        'Radar': 1},
+    'weapons': 'Standard'}
 ]
-
 
 def threaded_client(conn: socket.socket, player : int):
     reply = ""
@@ -48,7 +52,11 @@ def threaded_client(conn: socket.socket, player : int):
                 break
             else:
                 if player == 1:
-                    reply = player_data[0]
+                    try: 
+                        reply = ast.literal_eval(player_data[0])
+                    except Exception as e:
+                        print("Error converting to Dict line 56, threadedServer.py\nError: ", e)
+                    
                 else: 
                     reply = player_data[1]
             data = pickle.loads(data)       # NORMAL PYTHON DATA

@@ -2,6 +2,7 @@ import pygame
 import os
 import platform
 import random
+from network import Network
 
 
 # these should be moved to constants
@@ -507,10 +508,11 @@ def main():
     # Variable to keep our game loop running
     running = True
     clock = pygame.time.Clock()
-    # n = Network()
-    # startP = n.get_p()
+
+    # This initialises the network class so that it can act as a client
     n = Network()
-    p1 = Player(200, 200, 40, 60, (0, 0, 255))
+    # Get the data from the server about ourselves (p1)
+    p1 = n.connect()
     enemies = []
     level = 1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
@@ -533,8 +535,9 @@ def main():
     shoot_counter = 0
 
     while running:
+        # The data from the p2 client
+        ship_system_data = n.send(p1)
         shoot_counter += 1
-        # p2 = n.send(p1)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
             # starts the timer
