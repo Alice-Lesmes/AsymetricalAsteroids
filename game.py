@@ -349,8 +349,17 @@ class Projectile():
 
 
 class Asteroid(Projectile):
+    def __init__(self, x: int, y: int, damages_player: bool,
+                 colour, facing: int, element: str, damage=100):
+        super().__init__(x, y, damages_player, colour, facing, element, damage)
+
     def set_img(self):
-        self.projectile_img = ASTEROID_IMG_DATA.get(self._element)
+        if random.randint(1, 3) == 1:
+            self.projectile_img = ASTEROID_RED
+        elif random.randint(1, 3) == 2:
+            self.projectile_img = ASTEROID_BLUE
+        else:
+            self.projectile_img = ASTEROID_GREEN
 
 
 class Rocket(Projectile):
