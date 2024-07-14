@@ -10,6 +10,7 @@ class Client(addr : String, port: Int) {
     val SERVER_PORT = port
 
     fun connect(data: Data) {
+        // THis doesn't work, prob cause something on threadedServer.py
         val connected = true
         println("Getting Client")
         var client = Socket(SERVER_ADDRESS, SERVER_PORT)     // The connection to server
@@ -17,10 +18,10 @@ class Client(addr : String, port: Int) {
         // Continuously check
         while (connected)
         {
-            var reply = formatReply(data)
-            val pickler = Pickler()     // Allows to pickle data
-            val unpickler = Unpickler()     // Allows to unpickle data
-            val received_data = unpickler.load(client.getInputStream())
+            var reply = "Hello!"
+            var pickler = Pickler()     // Allows to pickle data
+            var unpickler = Unpickler()     // Allows to unpickle data
+            var received_data = unpickler.load(client.getInputStream())
             client.outputStream.write(pickler.dumps(reply))     // Send back data
             println("Receiving: " + unpickler.load(client.getInputStream()))
 
@@ -43,9 +44,9 @@ class Client(addr : String, port: Int) {
             modules += "'$module': ${data.getPower(module)}, "
         }
         modules = modules.removeSuffix(", ")
-        modules += "}"
+        modules += "}, "
 
-        var weaponData = "{'weapon': ${data.getWeaponElement()}}"
+        var weaponData = "'weapon': '${data.getWeaponElement()}'"
         var reply : String = "{$modules, $weaponData}"
         return reply
     }

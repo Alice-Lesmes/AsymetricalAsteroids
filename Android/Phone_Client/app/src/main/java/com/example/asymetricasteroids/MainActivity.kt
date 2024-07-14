@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun mainView(data: Data) {
-    val SERVER_ADDRESS = "192.168.0.12"
-    val PORT = 8009
+    val SERVER_ADDRESS = "192.168.233.244"
+    val PORT = 8000
 
     // Triggers on first launch and connects to server
     Alert(SERVER_ADDRESS, PORT, data)
@@ -280,18 +280,28 @@ fun WeaponText(current_weapon: String) {
 
 @Composable
 fun ElementSelect(data: Data) {
-    var CurrentWeapon by remember { mutableStateOf("Standard") }
+    var CurrentWeapon by remember { mutableStateOf("Yellow") }
 
     Column {
         WeaponText(current_weapon = CurrentWeapon)
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            for (weapon in arrayOf("Standard", "Element 1", "Element 2"))
-                ElementalWeapon(
-                    name = weapon,
-                    onButtonPress = { CurrentWeapon = weapon;
-                        data.updateElement(weapon) },
-                    modifier = Modifier.weight(1f))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row {
+                for (weapon in arrayOf("Yellow", "Red"))
+                    ElementalWeapon(
+                        name = weapon,
+                        onButtonPress = { CurrentWeapon = weapon;
+                            data.updateElement(weapon) },
+                        modifier = Modifier.weight(1f))
+            }
+            Row {
+                for (weapon in arrayOf("Green", "Blue"))
+                        ElementalWeapon(
+                        name = weapon,
+                        onButtonPress = { CurrentWeapon = weapon;
+                            data.updateElement(weapon) },
+                        modifier = Modifier.weight(1f))
+            }
 
 
         }
