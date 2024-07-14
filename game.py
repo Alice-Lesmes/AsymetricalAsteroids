@@ -256,6 +256,9 @@ class Boss(Enemy):
         pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/self.max_health), 10))
 
     def shoot(self, bullets):  # list of bullets
+        # possibility to change colour
+        # if random.randint(1, 75) == 50:
+            
         if self.shoot_counter == 30:
             bullets.append(Asteroid(self._x + self._width//2,
                                       self._y + self._height//2,
@@ -294,10 +297,6 @@ class Projectile():
             element: type of projectile (normal, fire, etc etc)
             damage: how much damage the projectile does (default 100)
         """
-
-        self.projectile_img = BULLET_IMG_DATA.get(element)
-        self.hitbox = pygame.mask.from_surface(self.projectile_img)
-
         self._x = x
         self._y = y
         self._damages_player = damages_player
@@ -307,6 +306,12 @@ class Projectile():
         self._damage = damage
 
         self._vel = facing * 12  # facing specifies positive or negative
+        
+        self.set_img()
+        self.hitbox = pygame.mask.from_surface(self.projectile_img)
+    
+    def set_img(self):
+        self.projectile_img = BULLET_IMG_DATA.get(self._element)
 
     def get_x(self):
         return self._x
@@ -330,8 +335,7 @@ class Projectile():
         return self._vel
 
     def draw(self, win):
-        img = BULLET_IMG_DATA.get(self._element)
-        WIN.blit(img, (self.get_x() - 20, self.get_y() - 40))
+        WIN.blit(self.projectile_img, (self.get_x() - 20, self.get_y() - 40))
 
         # OLD
         # if self._colour == "blue":
@@ -342,35 +346,11 @@ class Projectile():
 
 
 class Asteroid(Projectile):
-    def __init__(self, x: int, y: int, damages_player: bool,
-                 colour, facing: int, element: str, damage=100):
-        """
-        Parameters:
-            x: x position of projectile
-            y: y position of projectile
-            radius: radius size of the projectile
-            colour: projectile colour
-            facing: direction (-1 for up, 1 for down)
-            element: type of projectile (normal, fire, etc etc)
-            damage: how much damage the projectile does (default 100)
-        """
-
-        self.projectile_img = BULLET_IMG_DATA.get(element)
-        self.hitbox = pygame.mask.from_surface(self.projectile_img)
-
-        self._x = x
-        self._y = y
-        self._damages_player = damages_player
-        self._colour = colour
-        self._facing = facing
-        self._element = element
-        self._damage = damage
-
-        self._vel = facing * 12  # facing specifies positive or negative
+    def set_img(self):
+        self.projectile_img = ASTEROID_IMG_DATA.get(self._element)
 
     def draw(self, win):
-        img = ASTEROID_IMG_DATA.get(self._element)
-        WIN.blit(img, (self.get_x() - 20, self.get_y() - 40))
+        WIN.blit(self.projectile_img, (self.get_x() - 20, self.get_y() - 40))
 
 
 # drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
