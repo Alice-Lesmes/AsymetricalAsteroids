@@ -9,7 +9,9 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-root = "../assets"
+
+root = "../assets" # temp fix
+
 
 if platform.system() != "Windows":
     root = "../assets"
@@ -42,6 +44,12 @@ LEVEL_THREE = {
 }
 
 LEVELS = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE]
+
+
+TYPE_ENEMY = "ENEMY"
+TYPE_BASIC = "BASIC"
+TYPE_SHOOTER = "SHOOTER"
+TYPE_BOSS = "BOSS"
 
 # used to adjust how strong the light around the player gets after
 # one increase/decrease
@@ -157,6 +165,9 @@ class Enemy(Ship):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
         super().__init__(x, y, width, height, colour, health)
+    
+    def __str__(self):
+        return TYPE_ENEMY
 
     def move(self):
         """Move the enemy downwards"""
@@ -169,7 +180,9 @@ class Enemy(Ship):
     
     def damage_self(self, projectile: "Projectile") -> None:
         """Damage the enemy"""
-        self._health -= projectile.get_damage()
+        damage = projectile.get_damage()
+        print(self.__str__() + f" has taken {damage}")
+        self._health -= damage
     
     def alive(self):
         """Returns if the enemy is alive"""
@@ -187,6 +200,9 @@ class Basic(Enemy):
         super().__init__(x, y, width, height, colour, health)
         self.ship_img = ENEMY_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
+    
+    def __str__(self):
+        return TYPE_BASIC
     
     def draw(self, win, img=ENEMY_SPACE_SHIP):
         """Draw the enemy
@@ -212,6 +228,9 @@ class Shooter(Enemy):
         self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+    
+    def __str__(self):
+        return TYPE_SHOOTER
 
     def draw(self, win, img=SHOOTER_SPACE_SHIP):
         """Draw the enemy
@@ -240,11 +259,17 @@ class Shooter(Enemy):
 
 class Boss(Enemy):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
+                 health=2000) -> None:
         super().__init__(x, y, width, height, colour, health)
-        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
+        # for some reason setting this to BOSS_SPACE_SHIP causes it to disappear
+        # so yay???
+        self.ship_img = BOSS_SPACE_SHIP   # placeholder
         self.hitbox = pygame.mask.from_surface(self.ship_img)
         self.shoot_counter = 15
+        self.max_health = health
+    
+    def __str__(self) -> str:
+        return TYPE_BOSS
 
     def draw(self, win, img=BOSS_SPACE_SHIP):
         """Draw the enemy
@@ -260,8 +285,12 @@ class Boss(Enemy):
         WIN.blit(img, (self.get_x(), self.get_y()))
     
     def healthbar(self, win):
+        # red bg
         pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
+        
+        # green (actual health)
+        # this 10 at the end needs to be changed to smth
+        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/self.max_health), 10))
 
     def shoot(self, bullets):  # list of bullets
         if self.shoot_counter == 30:
@@ -276,7 +305,8 @@ class Boss(Enemy):
             self.shoot_counter += 1
     
     def move(self):
-        """Move the enemy downwards, unless it is at y  = 300"""
+        """Move the enemy downwards"""
+        # unless the enemy is at the top
         if self._y < 0:
             self._y += self._vel
 
@@ -482,7 +512,7 @@ def main():
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
-    level = 2  # what stage we are on
+    level = 1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
 
     # I am hopefully gonna move this out of main
@@ -545,7 +575,7 @@ def main():
         # generate enemies
         # make sure enemies get killed when they reach the bottom???
         if len(enemies) == 0:
-            if level < 2:
+            if level < len(LEVELS):
                 level += 1
 
             wave_length = LEVELS[level].get("enemies")
@@ -569,6 +599,7 @@ def main():
             if level == 2:
                 boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
                 enemies.append(boss)
+                print("the boss has spawned")
 
         # game logic starts here
         # player movement
@@ -604,17 +635,25 @@ def main():
                 # this needs to be health reduction rather than immediate
                 # removal
                 if has_collided(enemy, bullet):
+                    # boss check
+                    if str(enemy) == "BOSS" and bullet.damages_player():
+                        continue
+
                     if enemy in enemies:
                         enemy.damage_self(bullet)
                         # print("enemy has been damaged with health " +
                         #       f"{enemy.get_health()}")
                         if not enemy.alive():
                             enemies.remove(enemy)
+                    
+                    # remove the bullet
+                    bullets.pop(bullets.index(bullet))
 
             if has_collided(enemy, p1):
                 p1._health -= 10
                 if enemy in enemies:
                     enemies.remove(enemy)
+
             if random.randint(1, 75) == 50:
                 enemy.change_hor_vel()
 
