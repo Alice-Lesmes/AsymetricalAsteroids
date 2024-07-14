@@ -6,7 +6,7 @@ import pickle
 # from PLAYER_CLASS import PLAYER
 from constants import *
 # from single_player.game import Player
-from single_player.game import Player
+from game import Player
 
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
@@ -29,7 +29,7 @@ print("Waiting for a connection. Server Started!")
 # Otherwise have to change the logic of the server
 player_data = [
     Player(0, 0, 50, 50, "Red", 100),
-    Player(50,50,60,60, "Green", 95)
+    Player(50, 50, 60, 60, "Green", 95)
 ]
 
 

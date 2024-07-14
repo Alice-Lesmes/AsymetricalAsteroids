@@ -4,7 +4,10 @@ import pygame
 
 # Constants
 
-SERVER_ADDRESS = "192.168.200.168"
+# replace the server address with the local IP
+# on windows use ipconfig --all
+# on ubuntu use ip a
+SERVER_ADDRESS = "192.168.200.169"
 SERVER_PORT = 8000
 
 BYTE_SIZE = 2048*2048

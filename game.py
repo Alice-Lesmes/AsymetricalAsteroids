@@ -2,6 +2,7 @@ import pygame
 import os
 import random
 from constants import *
+# from network import *
 
 
 class Ship():
