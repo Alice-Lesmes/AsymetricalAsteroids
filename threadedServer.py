@@ -5,6 +5,8 @@ import pickle
 # Add the import class later when we have the correct data to send
 # from PLAYER_CLASS import PLAYER
 from constants import *
+# from single_player.game import Player
+from single_player.game import Player
 
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
@@ -26,8 +28,8 @@ print("Waiting for a connection. Server Started!")
 # Doesn't really matter what's in here, just make sure only 2 for now
 # Otherwise have to change the logic of the server
 player_data = [
-    PLAYER_CLASS(50, 50, 40, 50, (255, 0, 0)),
-    PLAYER_CLASS(0, 0, 40, 60, (255, 255, 0))
+    Player(0, 0, 50, 50, "Red", 100),
+    Player(50,50,60,60, "Green", 95)
 ]
 
 

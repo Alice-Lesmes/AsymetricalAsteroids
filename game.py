@@ -509,7 +509,7 @@ def main():
     clock = pygame.time.Clock()
     # n = Network()
     # startP = n.get_p()
-
+    n = Network()
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     enemies = []
     level = 1  # what stage we are on
