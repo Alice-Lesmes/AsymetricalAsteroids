@@ -16,10 +16,11 @@ Requirements:<br/>
 Dependencies:<br/>
 - Pygame: enter "pip install pygame" (no quotations)<br/>
 
-## How to run Locally
-Run threadedServer.py<br/>
-Run game.py<br/>
-Profit
+## How to run
+1. Run threadedServer.py<br/>
+2. Run game.py<br/>
+3. Open phone client app
+4. Profit
 
 <br/>
 Current Controls:
