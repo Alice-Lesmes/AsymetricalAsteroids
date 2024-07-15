@@ -28,12 +28,25 @@ print("Waiting for a connection. Server Started!")
 # Doesn't really matter what's in here, just make sure only 2 for now
 # Otherwise have to change the logic of the server
 player_data = [
-    Player(0, 0, 50, 50, "Red", 100),
-    Player(50, 50, 60, 60, "Green", 95)
+    "Hello server data",        # P1 data to be sent to P2
+    "This from the Phone"       # Changed immediately upon connection from P2
 ]
-
+current_player = 0      # The current player
+players = []        # To allow for reconnections
 
 def threaded_client(conn: socket.socket, player : int):
+    '''
+    Maintains constant connection to the client on a different thread to main
+    If player 1 send P2 data, and then store the data in `player_data` at the
+    corresponding index.
+
+    Should run this on new threads so that it doesn't clog up main with
+    an infinite loop. <-- We do this. Yay!
+
+    Parameters:
+        - conn (socket) i don't remember what this is actually, but it's something
+        - player (int) This is the index of the player
+    '''
     reply = ""
     conn.send(pickle.dumps(player_data[player]))
     
@@ -45,9 +58,11 @@ def threaded_client(conn: socket.socket, player : int):
             # If no data is recieved, disconnect 
             if not data:
                 print("Disconnected!")
+                '''TODO: When player disconnects/loses connection allow possible reconnection'''
                 break
             else:
                 if player == 1:
+                    print(pickle.loads(data))
                     reply = player_data[0]
                 else: 
                     reply = player_data[1]
@@ -63,10 +78,9 @@ def threaded_client(conn: socket.socket, player : int):
     conn.close()
     return
 
-
-current_player = 0
 # Continously look for a connection
 while True:
+    
     # addr = IP Address
     conn, addr = s.accept()
     print("Connected to: ", addr)

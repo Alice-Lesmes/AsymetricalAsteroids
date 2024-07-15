@@ -2,7 +2,7 @@ import pygame
 import os
 import random
 from constants import *
-# from network import *
+from network import *
 
 
 class Ship():
@@ -500,10 +500,11 @@ def main():
     # Variable to keep our game loop running
     running = True
     clock = pygame.time.Clock()
-    # n = Network()
+    n = Network()
     # startP = n.get_p()
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
+    p1_server_data_resp = n.get_p()
     enemies = []
     level = -1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
@@ -529,6 +530,16 @@ def main():
     shoot_counter = 0
 
     while running:
+        ship_data = n.send(p1_server_data_resp)
+        try:
+            modules = ship_data['modules']
+            # Modules are using capitals for    
+            engine_power = ship_data['Engines']
+            o2_power = ship_data['O2']
+
+        except:
+            if not type(ship_data) is str:
+                print(ship_data)
         shoot_counter += 1
         # p2 = n.send(p1)
         keys = pygame.key.get_pressed()

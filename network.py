@@ -19,6 +19,7 @@ class Network():
             self.client.connect(self.addr)
             # Loads byte data
             return pickle.loads(self.client.recv(BYTE_SIZE))
+            
         except Exception as e:
             print("Error connecting: ", e)
 
