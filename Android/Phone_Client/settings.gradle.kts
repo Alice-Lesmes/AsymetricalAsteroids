@@ -19,7 +19,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://github.com/irmen/pickle")
-        maven("https://github.com/chaquo/chaquopy")
 /*
         maven { url'https://github.com/irmen/pickle' }
 */

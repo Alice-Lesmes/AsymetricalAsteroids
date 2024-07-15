@@ -57,7 +57,7 @@ android {
 }
 
 dependencies {
-
+    implementation("io.ktor:ktor-network:2.3.12")
     implementation("org.python:jython-slim:2.7.3")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -76,6 +76,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x.x")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:x.x.x")
 
 }
 
