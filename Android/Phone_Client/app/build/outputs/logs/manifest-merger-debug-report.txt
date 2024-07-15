@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-29:12
-INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-29:12
-INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-29:12
-INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-29:12
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:2:1-31:12
 MERGED from [androidx.compose.material3:material3:1.1.1] /home/alice/.gradle/caches/transforms-4/3349e77637fc09cbbc3afb441d960534/transformed/material3-1.1.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.compose.material:material-ripple-android:1.5.0] /home/alice/.gradle/caches/transforms-4/f9cd8378f010a2da588087bc0047d08f/transformed/material-ripple-release/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.material:material-icons-core-android:1.5.0] /home/alice/.gradle/caches/transforms-4/dd371f3e345d1c6cdfd69bbd2b3bea6c/transformed/material-icons-core-release/AndroidManifest.xml:2:1-7:12
@@ -66,9 +66,13 @@ uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:5:5-79
 	android:name
 		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:5:22-76
+uses-permission#android:enableOnBackInvokedCallback
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:6:5-75
+	android:name
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:6:22-72
 application
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:6:5-27:19
-INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:6:5-27:19
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:7:5-29:19
+INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:7:5-29:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.5.0] /home/alice/.gradle/caches/transforms-4/55f99a0a2324e7e429dfcb4bc7a0676f/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.5.0] /home/alice/.gradle/caches/transforms-4/55f99a0a2324e7e429dfcb4bc7a0676f/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-test-manifest:1.5.0] /home/alice/.gradle/caches/transforms-4/1091eaf49464459736a883b8365f44fe/transformed/ui-test-manifest-1.5.0/AndroidManifest.xml:22:5-26:19
@@ -90,43 +94,45 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/alice/.gradle/caches/
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] /home/alice/.gradle/caches/transforms-4/d1ca930cacf1b215073c70645acba8c1/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:13:9-35
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:14:9-35
 	android:label
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:11:9-41
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:12:9-41
 	android:fullBackupContent
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:9:9-54
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:10:9-54
 	android:roundIcon
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:12:9-54
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:13:9-54
 	tools:targetApi
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:15:9-29
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:17:9-29
 	android:icon
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:10:9-43
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:11:9-43
 	android:allowBackup
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:7:9-35
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:8:9-35
 	android:theme
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:14:9-56
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:15:9-56
+	android:enableOnBackInvokedCallback
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:16:9-51
 	android:dataExtractionRules
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:8:9-65
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:9:9-65
 activity#com.example.asymetricasteroids.MainActivity
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:16:9-26:20
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:18:9-28:20
 	android:label
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:19:13-45
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:21:13-45
 	android:exported
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:18:13-36
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:20:13-36
 	android:theme
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:20:13-60
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:22:13-60
 	android:name
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:17:13-41
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:19:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:21:13-25:29
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:23:13-27:29
 action#android.intent.action.MAIN
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:22:17-69
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:24:17-69
 	android:name
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:22:25-66
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:24:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:24:17-77
+ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:26:17-77
 	android:name
-		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:24:27-74
+		ADDED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml:26:27-74
 uses-sdk
 INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/alice/AndroidStudioProjects/AsymetricAsteroids/app/src/main/AndroidManifest.xml

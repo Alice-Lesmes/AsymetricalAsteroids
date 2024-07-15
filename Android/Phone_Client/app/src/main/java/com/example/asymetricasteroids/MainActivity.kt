@@ -1,6 +1,7 @@
 package com.example.asymetricasteroids
 
 import android.os.Bundle
+import android.provider.Telephony.Carriers.PORT
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,6 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.asymetricasteroids.ui.theme.AsymetricAsteroidsTheme
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.annotations.Async
+import kotlin.concurrent.thread
 
 // UI AND MAIN *stuff*
 class MainActivity : ComponentActivity() {
@@ -39,12 +44,19 @@ class MainActivity : ComponentActivity() {
             var client = Client("192.168.122.1")
             client.socket.connect()
         })*/
+        val SERVER_ADDRESS = "192.168.0.12"
+        val PORT = 8000
+        var dataManager = Data()
+        thread {
+            var client = Client(SERVER_ADDRESS, PORT, dataManager)
+            runBlocking { client.connect() }
 
+        }
         enableEdgeToEdge()
         setContent {
             AsymetricAsteroidsTheme {
                 // The data that all the code draws from
-                var dataManager = Data()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     mainView(dataManager)
                     /*Button(onClick = { println("ALIVE?: " + client.isAlive()) }) {
@@ -61,23 +73,50 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun mainView(data: Data) {
-    val SERVER_ADDRESS = "192.168.233.244"
-    val PORT = 8000
+    // The main view which holds the smaller views together and inits client connection
 
-    // Triggers on first launch and connects to server
-    Alert(SERVER_ADDRESS, PORT, data)
-
-    ModuleView(data)
-}
-
-@Composable
-fun Alert(addr: String, port: Int, data: Data) {
-    var showAlert by remember {
-        mutableStateOf(true)
-    }
     var CriticalServerError by remember {
         mutableStateOf(false)
     }
+    var showAlert by remember {
+        mutableStateOf(true)
+    }
+
+    // Triggers on first launch and connects to server
+    if (showAlert) Alert()
+    // This would be used if there is no response from the server, but we don't care
+    // Just hope for connection, if not, -\_(<: )_/-
+    /*if (CriticalServerError)
+    {
+        AlertDialog(onDismissRequest = { CriticalServerError = false },
+            title = { Text("Error connecting to server") },
+            text = {
+                Text(
+                    "Check server is running and IP and PORT is correct\n" +
+                            "IP: $SERVER_ADDRESS\nPORT: $PORT"
+                )
+            },
+            confirmButton = {
+                // System.exit should just quit the app
+                Button(onClick = { showAlert = true}) {
+                    Text(text = "Oh no... Reconnect!")
+                }
+            })
+    }*/
+    ModuleView(data)
+
+    // Enable for debugging purposes only. Allows to print data sent to server
+    Button(onClick = { println("Data get!"); data.printAllData() }) {
+        Text(text = "Print DATa!S")
+    }
+}
+
+@Composable
+fun Alert() {
+    var showAlert by remember {
+        mutableStateOf(true)
+    }
+
     if (showAlert) {
         AlertDialog(
             onDismissRequest = { showAlert = false },
@@ -94,15 +133,7 @@ fun Alert(addr: String, port: Int, data: Data) {
             confirmButton = {
                 Button(onClick = {
                     showAlert = false;
-                    val client = Client(addr, port);
-                    // Attempt to connect to server
-                    try {
-                        // On a new thread so error doesn't get thrown and save main thread for UI
-                        Thread({ client.connect(data) }).start()
-                    } catch (e: Exception) {
-                        println("ERROR CONNECTING TO SERVER: " + e)
-                        CriticalServerError = true
-                    }
+
                 })
                 {
                     // This is the text of the button
@@ -111,23 +142,7 @@ fun Alert(addr: String, port: Int, data: Data) {
             }
         )
     }
-    // If can't connect retry
-    if (CriticalServerError) {
-        AlertDialog(onDismissRequest = { CriticalServerError = false },
-            title = { Text("Error connecting to server") },
-            text = {
-                Text(
-                    "Check server is running and IP and PORT is correct\n" +
-                            "IP: $addr\nPORT: $port"
-                )
-            },
-            confirmButton = {
-                // System.exit should just quit the app
-                Button(onClick = { showAlert = true }) {
-                    Text(text = "Oh no... Reconnect!")
-                }
-            })
-    }
+
 }
 
 @Composable
