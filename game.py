@@ -8,7 +8,7 @@ from classes.constants import *
 from classes.ship import Player, Basic, Shooter, Boss
 from classes.oxygen import Oxygen 
 from classes.light import Light
-# from network import *
+from network import *
 
 
 # will need to modify the function to draw other players???
@@ -71,7 +71,6 @@ def main():
     clock = pygame.time.Clock()
 
     # load sounds
-    
     # I have to wait for pygame init to actually play the music
     MUSIC = pygame.mixer.music.load(os.path.join(root, "quack_music.mp3"))
     pygame.mixer.music.play(-1)  # loops the music
@@ -79,11 +78,12 @@ def main():
     # why is Sound in caps!!!
     SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "blaster.wav"))
     HIT_SOUND = pygame.mixer.Sound(os.path.join(root, "ship_explosion.wav"))
-    
-    # n = Network()
+
+    n = Network()
     # startP = n.get_p()
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
+    p1_server_data_resp = n.get_p()
     enemies = []
     level = -1  # what stage we are on
     wave_length = 5  # how many enemies will spawn
@@ -109,6 +109,16 @@ def main():
     shoot_counter = 0
 
     while running:
+        ship_data = n.send(p1_server_data_resp)
+        try:
+            modules = ship_data['modules']
+            # Modules are using capitals for    
+            engine_power = ship_data['Engines']
+            o2_power = ship_data['O2']
+
+        except:
+            if not type(ship_data) is str:
+                print(ship_data)
         shoot_counter += 1
         # p2 = n.send(p1)
         keys = pygame.key.get_pressed()

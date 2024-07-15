@@ -1,7 +1,7 @@
 import socket
 # This allows for encoding as byte data
 import pickle
-from constants import *
+from classes.constants import *
 
 class Network():
     def __init__(self) -> None:
@@ -19,6 +19,7 @@ class Network():
             self.client.connect(self.addr)
             # Loads byte data
             return pickle.loads(self.client.recv(BYTE_SIZE))
+            
         except Exception as e:
             print("Error connecting: ", e)
 
