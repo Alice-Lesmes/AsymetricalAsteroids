@@ -5,6 +5,7 @@ from constants import *
 # from network import *
 
 
+
 class Ship():
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
                  health=100) -> None:
@@ -500,6 +501,10 @@ def main():
     # Variable to keep our game loop running
     running = True
     clock = pygame.time.Clock()
+
+    # I have to wait for pygame init to actually play the music
+    MUSIC = pygame.mixer.music.load(os.path.join(root, "quack_music.mp3"))
+    pygame.mixer.music.play(-1)
     # n = Network()
     # startP = n.get_p()
 
@@ -576,6 +581,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
+                return
 
         # listen for loss
         if shipOxygen.get_count() == 0:

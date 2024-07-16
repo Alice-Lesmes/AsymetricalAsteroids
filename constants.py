@@ -39,6 +39,8 @@ ASTEROID_GREEN = pygame.image.load(os.path.join(root, "asteroid_green.png"))
 
 ROCKET_IMG = pygame.image.load(os.path.join(root, "missile.png"))
 
+
+
 LEVEL_ONE = {
     "enemies": 5,
     "bg_image": pygame.transform.scale(pygame.image.load(os.path.join(
