@@ -70,9 +70,16 @@ def main():
     running = True
     clock = pygame.time.Clock()
 
+    # load sounds
+    
     # I have to wait for pygame init to actually play the music
     MUSIC = pygame.mixer.music.load(os.path.join(root, "quack_music.mp3"))
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)  # loops the music
+    
+    # why is Sound in caps!!!
+    SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "blaster.wav"))
+    HIT_SOUND = pygame.mixer.Sound(os.path.join(root, "ship_explosion.wav"))
+    
     # n = Network()
     # startP = n.get_p()
 
@@ -143,6 +150,13 @@ def main():
                         engine_cycle += 1
                     
                     p1.change_engine_power(engine_cycle)
+                
+                if event.key == pygame.K_SPACE:
+                    if shoot_counter >= 6:
+                        p1.shoot(bullets)
+                        SHOOT_SOUND.play()
+                        shoot_counter = 0
+
                     
 
             # Check for QUIT event
@@ -189,14 +203,12 @@ def main():
         p1.move()
 
         # bullet logic
-        if shoot_counter >= 6:
-            p1.shoot(bullets)
-            shoot_counter = 0
 
         for bullet in bullets:
             if has_collided(bullet, p1):
                 if bullet.damages_player():
                     p1._health -= 10
+                    HIT_SOUND.play()
                     bullets.remove(bullet)
 
             # this only shoots horizontally

@@ -86,16 +86,13 @@ class Player(Ship):
         if len(bullets) >= 50:
             return
 
-        keys = pygame.key.get_pressed()  # not sure if I should convert to self
-
-        if keys[pygame.K_SPACE]:
-            bullets.append(Projectile(self._x + self._width//2,
-                                      self._y + 10,
-                                      False,
-                                      "green",
-                                      -1,
-                                      self.bullet_type))
-            print(f"Player shot bullet with type {self.bullet_type}")
+        bullets.append(Projectile(self._x + self._width//2,
+                                    self._y + 10,
+                                    False,
+                                    "green",
+                                    -1,
+                                    self.bullet_type))
+        print(f"Player shot bullet with type {self.bullet_type}")
 
     def change_bullet(self, bullet: str) -> None:
         """Change the bullet type/element"""
