@@ -31,7 +31,7 @@ player_data = [
     # TBH we could have it so that the server handles 
 ]
 players = []        # List of player's IPs
-def threaded_client(conn: socket.socket):
+def threaded_client(conn: socket.socket, addr: str):
     '''
     Maintains constant connection to the client on a different thread to main
     If player 1 send P2 data, and then store the data in `player_data` at the
@@ -47,7 +47,8 @@ def threaded_client(conn: socket.socket):
     reply = ""
     # The below is not needed, I think, since game.py stores it's own position
     # But commeneted out just in case it breaks
-    # conn.send(pickle.dumps(player_data[player]))
+    conn.send(pickle.dumps("Fuck"))
+
     while True:
         try:
             # The int is the size of the packet (how many bits/bytes(?))
