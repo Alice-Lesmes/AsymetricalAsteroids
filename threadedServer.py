@@ -5,8 +5,6 @@ import pickle
 # Add the import class later when we have the correct data to send
 # from PLAYER_CLASS import PLAYER
 from constants import *
-# from single_player.game import Player
-from game import Player
 
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
@@ -28,49 +26,73 @@ print("Waiting for a connection. Server Started!")
 # Doesn't really matter what's in here, just make sure only 2 for now
 # Otherwise have to change the logic of the server
 player_data = [
-    Player(0, 0, 50, 50, "Red", 100),
-    Player(50, 50, 60, 60, "Green", 95)
+    "Hello server data",        # P1 data to be sent to P2
+    "This from the Phone"       # Changed immediately upon connection from P2
+    # TBH we could have it so that the server handles 
 ]
+players = []        # List of player's IPs
+def threaded_client(conn: socket.socket, addr: str):
+    '''
+    Maintains constant connection to the client on a different thread to main
+    If player 1 send P2 data, and then store the data in `player_data` at the
+    corresponding index.
 
+    Should run this on new threads so that it doesn't clog up main with
+    an infinite loop. <-- We do this. Yay!
 
-def threaded_client(conn: socket.socket, player : int):
+    Parameters:
+        - conn (socket) i don't remember what this is actually, but it's something
+        - player (int) This is the index of the player
+    '''
     reply = ""
-    conn.send(pickle.dumps(player_data[player]))
-    
+    # The below is not needed, I think, since game.py stores it's own position
+    # But commeneted out just in case it breaks
+    conn.send(pickle.dumps("Fuck"))
+
     while True:
         try:
             # The int is the size of the packet (how many bits/bytes(?))
             # This is the data that the client is sending to the server
             data = conn.recv(BYTE_SIZE) # BYTE DATA, INCOMPREHENSIBLE
+            data = pickle.loads(data)       # NORMAL PYTHON DATA
             # If no data is recieved, disconnect 
             if not data:
                 print("Disconnected!")
                 break
+            elif type(data) is dict:        # Phone only sends dict anyways...
+                # If phone -> send data from game.py
+                reply = player_data[0]
+                player_data[1] = data      # Update the stored data
             else:
-                if player == 1:
-                    reply = player_data[0]
-                else: 
-                    reply = player_data[1]
-            data = pickle.loads(data)       # NORMAL PYTHON DATA
-            player_data[player] = data      # Update the stored data
+                reply = player_data[1]
+                player_data[0] = data      # Update the stored data (not really needed for now)
+            
             # Reply to the client
             conn.sendall(pickle.dumps(reply))
 
         except Exception as e:
             print("Some error occurred in server: ", e)
             break
+    try:
+        players.remove(addr)
+    except:
+        # This should never happen regardless
+        print(f"Could not remove Player, since Player ({addr}) not found in players ({players})")
     print("Lost connection")
     conn.close()
     return
 
-
-current_player = 0
 # Continously look for a connection
 while True:
+    
     # addr = IP Address
     conn, addr = s.accept()
+    
     print("Connected to: ", addr)
-    # Prevent index error if more than two clients join
-    if current_player in [0, 1]:
-        start_new_thread(threaded_client, (conn, current_player))
-    current_player += 1
+    # Prevent more than two clients join and actually sending data
+    if len(players) < 3:
+        start_new_thread(threaded_client, (conn, addr))
+    else:
+        conn.send(pickle.dumps("Already reached limit of 2 players! Disconnecting!"))
+        conn.close()
+    players.append(addr)
