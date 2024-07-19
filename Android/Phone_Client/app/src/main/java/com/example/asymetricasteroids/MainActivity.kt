@@ -302,7 +302,7 @@ fun ElementSelect(data: Data) {
 
         Column(modifier = Modifier.fillMaxWidth()) {
             Row {
-                for (weapon in arrayOf("Standard", "Ice"))
+                for (weapon in arrayOf("Yellow", "Red"))
                     ElementalWeapon(
                         name = weapon,
                         onButtonPress = { CurrentWeapon = weapon;
@@ -310,7 +310,7 @@ fun ElementSelect(data: Data) {
                         modifier = Modifier.weight(1f))
             }
             Row {
-                for (weapon in arrayOf("Fire", "Leaf"))
+                for (weapon in arrayOf("Green", "Blue"))
                         ElementalWeapon(
                         name = weapon,
                         onButtonPress = { CurrentWeapon = weapon;
