@@ -79,6 +79,7 @@ def main():
     SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "blaster.wav"))
     HIT_SOUND = pygame.mixer.Sound(os.path.join(root, "ship_explosion.wav"))
 
+
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     p1_server_data_resp = n.get_p()
     enemies = []
@@ -107,7 +108,6 @@ def main():
 
     while running:
         ship_data = n.send(p1_server_data_resp)
-        
         try:
             modules = ship_data['modules']
             # Modules are using capitals for    
@@ -118,6 +118,7 @@ def main():
             if not type(ship_data) is str and DEBUG:
                 print(ship_data)
         
+
         shoot_counter += 1
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:

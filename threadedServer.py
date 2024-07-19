@@ -6,6 +6,7 @@ import pickle
 # from PLAYER_CLASS import PLAYER
 from classes.constants import *
 
+
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
 port = SERVER_PORT
