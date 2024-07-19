@@ -4,7 +4,8 @@ import sys
 import pickle
 # Add the import class later when we have the correct data to send
 # from PLAYER_CLASS import PLAYER
-from constants import *
+from classes.constants import *
+
 
 # The IP is just the computer's local IP
 server = SERVER_ADDRESS
