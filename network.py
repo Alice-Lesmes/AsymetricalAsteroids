@@ -1,7 +1,7 @@
 import socket
 # This allows for encoding as byte data
 import pickle
-from constants import *
+from classes.constants import *
 
 class Network():
     def __init__(self) -> None:
