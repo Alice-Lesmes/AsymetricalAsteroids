@@ -1,0 +1,36 @@
+__pycache__
+TestGame.py
+Android/Phone_Client/.idea
+# Gradle files
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/app
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradle
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/AsymetricAsteroids.zip
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/build.gradle.kts
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradle.properties
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradlew
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradlew.bat
+/home/alice/AndroidStudioProjects/AsymetricAsteroids/local.properties
+/home/alice/AndroidStudioProjects/AsymetricAsteroids.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
