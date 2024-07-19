@@ -1,449 +1,18 @@
 import pygame
-import os
+import os.path
+import sys
 import random
-from constants import *
+
+# own imports
+from classes.constants import *
+from classes.ship import Player, Basic, Shooter, Boss
+from classes.oxygen import Oxygen
+from classes.light import Light
 from network import *
 
 
-class Ship():
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
-        """
-        Parameters:
-            x: initial x position
-            y: initial y position
-            width: size
-            height: size
-            colour: colour of player
-        """
-        self._x = x
-        self._y = y
-        self._width = width
-        self._height = height
-        self._colour = colour
-        self._health = health
-
-        self._rect = (self._x, self._y, self._width, self._height)
-        self._vel = 5
-        self._hor_vel = 3
-        self._bullets = []
-
-    def get_x(self):
-        return self._x
-
-    def get_y(self):
-        return self._y
-    
-    def get_position(self) -> tuple[int]:
-        return (self._x, self._y)
-
-    def add_x(self, value: int):
-        self._x += value
-
-    def add_y(self, value: int):
-        self._y += value
-
-    def change_hor_vel(self):
-        """Chnage the direction in which the ship goes"""
-        self._hor_vel *= -1
-
-
-class Player(Ship):
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
-        super().__init__(x, y, width, height, colour, health)
-        self.ship_img = YELLOW_SPACE_SHIP   # placeholder
-        self.hitbox = pygame.mask.from_surface(self.ship_img)
-        self.bullet_type = STARTER_BULLET
-
-    def draw(self, win) -> None:
-        WIN.blit(self.ship_img, (self.get_x(), self.get_y()))
-        self.healthbar(win)
-
-    def healthbar(self, win):
-        pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/100), 10))
-
-    def move(self) -> None:
-        # add key listener
-        keys = pygame.key.get_pressed()
-
-        # key handler
-        if keys[pygame.K_LEFT]:
-            self._x -= self._vel
-        if keys[pygame.K_RIGHT]:
-            self._x += self._vel
-        if keys[pygame.K_UP]:
-            self._y -= self._vel
-        if keys[pygame.K_DOWN]:
-            self._y += self._vel
-
-        self._rect = (self._x, self._y, self._width, self._height)
-
-    def shoot(self, bullets: list[int]) -> None:
-        """
-        Parameters:
-            bullets: list of all bullets in the game
-        """
-        # this needs to be modified
-        if len(bullets) >= 50:
-            return
-
-        keys = pygame.key.get_pressed()  # not sure if I should convert to self
-
-        if keys[pygame.K_SPACE]:
-            bullets.append(Projectile(self._x + self._width//2,
-                                      self._y + 10,
-                                      False,
-                                      "green",
-                                      -1,
-                                      self.bullet_type))
-            print(f"Player shot bullet with type {self.bullet_type}")
-
-    def change_bullet(self, bullet: str) -> None:
-        """Change the bullet type/element"""
-        if bullet in BULLET_TYPES:
-            self.bullet_type = bullet
-            print(f"Bullet type has been changed to {bullet}")
-
-    def get_bullet_type(self):
-        """I don't even know if I need this"""
-        return self.bullet_type
-
-    def change_engine_power(self, value: int) -> None:
-        """Change the engine power (horizontal velocity)
-        
-        value should only be 0, 1, 2"""
-        if value in [0, 1, 2]:
-            self._vel = ENGINE_POWER[value]
-            print(f"new engine power is {self._vel}")
-
-    def move_bullet(self):
-        """I have no idea what I am doing"""
-        pass
-
-
-class Enemy(Ship):
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
-        super().__init__(x, y, width, height, colour, health)
-    
-    def __str__(self):
-        return TYPE_ENEMY
-
-    def move(self):
-        """Move the enemy downwards"""
-        self._y += self._vel
-        if self._x <= 10:
-            self.change_hor_vel()
-        elif self._x >= 450:
-            self.change_hor_vel()
-        self._x += self._hor_vel
-    
-    def damage_self(self, projectile: "Projectile") -> None:
-        """Damage the enemy"""
-        damage = projectile.get_damage()
-        print(self.__str__() + f" has taken {damage}")
-        self._health -= damage
-    
-    def alive(self):
-        """Returns if the enemy is alive"""
-        if self._health > 0:
-            return True
-        return False
-
-    def get_health(self):
-        return self._health
-
-
-class Basic(Enemy):
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
-        super().__init__(x, y, width, height, colour, health)
-        self.ship_img = ENEMY_SPACE_SHIP   # placeholder
-        self.hitbox = pygame.mask.from_surface(self.ship_img)
-        self.dieoncollision = True
-    
-    def __str__(self):
-        return TYPE_BASIC
-    
-    def draw(self, win, img=ENEMY_SPACE_SHIP):
-        """Draw the enemy
-
-        Parameters:
-            win: pygame window
-            img: image mask of the enemy
-        """
-        self.move()
-
-        # hitbox has not been masked (wait but it has?)
-        WIN.blit(img, (self.get_x(), self.get_y()))
-
-    def shoot(self, bullets):
-        # This enemy does not shoot
-        return
-
-
-class Shooter(Enemy):
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=100) -> None:
-        super().__init__(x, y, width, height, colour, health)
-        self.ship_img = SHOOTER_SPACE_SHIP   # placeholder
-        self.hitbox = pygame.mask.from_surface(self.ship_img)
-        self.shoot_counter = 15
-        self.dieoncollision = True
-    
-    def __str__(self):
-        return TYPE_SHOOTER
-
-    def draw(self, win, img=SHOOTER_SPACE_SHIP):
-        """Draw the enemy
-        
-        Parameters:
-            win: pygame window
-            img: image mask of the enemy
-        """
-        self.move()
-
-        # hitbox has not been masked
-        WIN.blit(img, (self.get_x(), self.get_y()))
-
-    def shoot(self, bullets):  # list of bullets
-        if self.shoot_counter == 30:
-            bullets.append(Rocket(self._x + self._width//2,
-                                      self._y + self._height//2,
-                                      True,
-                                      "blue",
-                                      1,
-                                      "Standard"))
-            self.shoot_counter = 1
-        else:
-            self.shoot_counter += 1
-
-
-class Boss(Enemy):
-    def __init__(self, x: int, y: int, width: int, height: int, colour: str,
-                 health=5000) -> None:
-        super().__init__(x, y, width, height, colour, health)
-        # for some reason setting this to BOSS_SPACE_SHIP causes it to disappear
-        # so yay???
-        self.ship_img = BOSS_SPACE_SHIP   # placeholder
-        self.hitbox = pygame.mask.from_surface(self.ship_img)
-        self.shoot_counter = 15
-        self.max_health = health
-        self.start_attack = False
-        self.dieoncollision = False
-    
-    def __str__(self) -> str:
-        return TYPE_BOSS
-
-    def draw(self, win, img=BOSS_SPACE_SHIP):
-        """Draw the enemy
-        
-        Parameters:
-            win: pygame window
-            img: image mask of the enemy
-        """
-        self.move()
-        self.healthbar(win)
-
-        # hitbox has not been masked
-        WIN.blit(img, (self.get_x(), self.get_y()))
-    
-    def healthbar(self, win):
-        # red bg
-        pygame.draw.rect(win, (255,0,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        
-        # green (actual health)
-        # this 10 at the end needs to be changed to smth
-        pygame.draw.rect(win, (0,255,0), (self._x, self._y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self._health/self.max_health), 10))
-
-    def shoot(self, bullets):  # list of bullets
-        # possibility to change colour
-        # if random.randint(1, 75) == 50:
-            
-        if self.shoot_counter == 30:
-            bullets.append(Asteroid(self._x + self._width//2,
-                                      self._y + self._height//2,
-                                      True,
-                                      "Red",
-                                      1,
-                                      "Red"))
-            self.shoot_counter = 1
-        else:
-            self.shoot_counter += 1
-    
-    def move(self):
-        """Move the enemy downwards"""
-        # unless the enemy is at the top
-        if self._y < 0:
-            self._y += self._vel
-
-        if self._x <= 10:
-            self.change_hor_vel()
-        elif self._x >= 450:
-            self.change_hor_vel()
-        self._x += self._hor_vel
-    
-
-# create projectile class
-class Projectile():
-    def __init__(self, x: int, y: int, damages_player: bool,
-                 colour, facing: int, element: str, damage=100):
-        """
-        Parameters:
-            x: x position of projectile
-            y: y position of projectile
-            radius: radius size of the projectile
-            colour: projectile colour
-            facing: direction (-1 for up, 1 for down)
-            element: type of projectile (normal, fire, etc etc)
-            damage: how much damage the projectile does (default 100)
-        """
-        self._x = x
-        self._y = y
-        self._damages_player = damages_player
-        self._colour = colour
-        self._facing = facing
-        self._element = element
-        self._damage = damage
-
-        self._vel = facing * 12  # facing specifies positive or negative
-        
-        self.set_img()
-        self.hitbox = pygame.mask.from_surface(self.projectile_img)
-    
-    def set_img(self):
-        self.projectile_img = BULLET_IMG_DATA.get(self._element)
-
-    def get_x(self):
-        return self._x
-
-    def get_y(self):
-        return self._y
-
-    def add_x(self, value: int):
-        self._x += value
-
-    def add_y(self, value: int):
-        self._y += value
-
-    def damages_player(self):
-        return self._damages_player
-    
-    def get_damage(self):
-        return self._damage
-
-    def get_vel(self):
-        return self._vel
-
-    def draw(self, win):
-        WIN.blit(self.projectile_img, (self.get_x() - 20, self.get_y() - 40))
-
-        # OLD
-        # if self._colour == "blue":
-        #     WIN.blit(PROJECTILE_BLUE, (self.get_x() - 20, self.get_y() - 40))
-        # elif self._colour == "green":
-        #     WIN.blit(PROJECTILE_GREEN, (self.get_x() - 20, self.get_y() - 40))
-        #pygame.draw.circle(win, self._colour, (self._x, self._y), self._radius)
-
-
-class Asteroid(Projectile):
-    def set_img(self):
-        self.projectile_img = ASTEROID_IMG_DATA.get(self._element)
-
-
-class Rocket(Projectile):
-    def set_img(self):
-        rocket = ROCKET_IMG.copy()
-        self.projectile_img = pygame.transform.flip(rocket, False, True)
-
-# drawn from https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
-class Oxygen():
-    def __init__(self, counter: int):
-        """
-        Parameters:
-            counter: the counter
-        """
-        self.activated = False
-        self.limit = 10
-        self.counter, self.text = counter, str(counter).ljust(3)
-
-    def start(self):
-        """Start the timer"""
-        keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_1]:
-            pygame.time.set_timer(pygame.USEREVENT, 1000)
-    
-    def stop(self):
-        """Stop the timer (and reset the count?)"""
-        pygame.time.set_timer(pygame.USEREVENT, 0)
-        # track how much time elapses????
-        if self.counter <= self.limit:
-            self.counter += 1
-
-    def terminate(self):
-        if self.counter == 0:
-            pygame.time.set_timer(pygame.USEREVENT, 0)
-            self.text = "You are dead"
-
-    def count(self):
-        self.counter -= 1
-        self.text = str(self.counter).ljust(3)
-        # print(f"current state of counter is {self.counter}")
-    
-    def get_count(self):
-        return self.counter
-
-    def get_text(self):
-        # print(f"get text passing with {self.text}")
-        return self.text
-
-
-class Light():
-    def __init__(self):
-        self.light = pygame.image.load(os.path.join(root, 'circle.png'))
-        self.scale = START_LIGHT
-        self._starter_width = self.light.get_width()
-        self._starter_height = self.light.get_height()
-        self.size = (self._starter_width * self.scale,
-                     self._starter_height * self.scale)
-        self.light = pygame.transform.scale(self.light, self.size)
-        self._tick = 0
-
-    def update_light(self, value: int) -> None:
-        """
-        value should only be 0, 1 or 2
-        """
-        if value in [0, 1, 2]:
-            self.scale = RADAR_POWER.get(value)
-            self.update_size()
-            print(f"update size is {self.size} with scale {self.scale}")
-            self.light = pygame.transform.scale(self.light, self.size)
-    
-    def update_size(self):
-        self.size = (self._starter_width * self.scale,
-                     self._starter_height * self.scale)
-    
-    # increase and decrease functions are now deprecated
-    def decrease_scale(self, value: int) -> None:
-        if self.scale > 0+value:
-            self.scale -= value
-        self.update_size()
-    
-    def increase_scale(self, value: int) -> None:
-        self.scale += value
-        self.update_size()
-    
-    # find a function to handle 0, 1, 2
-
-    def get_img(self):
-        return self.light
-
-
 # will need to modify the function to draw other players???
-def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
+def redrawWindow(win, player: "Player", enemies: list[int], bullets: list[int],
                  level: int, light: "light"):
     # clear the previous box with blank
     win.blit(LEVELS[level].get("bg_image"), (0, 0))
@@ -460,14 +29,12 @@ def redrawWindow(win, player: Player, enemies: list[int], bullets: list[int],
     for bullet in bullets:
         bullet.draw(win)
 
-    # print(f"current state of bullets is {bullets}")
-
     # test size for images
     # enemies are 50x50
     # rockets are 20x80
     # asteroids are 70 x 70
     # pygame.draw.rect(win, (255, 0, 0), (50, 50, 60, 50))
-    
+
     # draw shadow
     filter = pygame.surface.Surface((WIDTH, HEIGHT))
     # the less "grey" the colour actually is, the darker the environment
@@ -501,7 +68,19 @@ def main():
     running = True
     clock = pygame.time.Clock()
     n = Network()
-    # startP = n.get_p()
+
+    # load sounds
+
+    # I have to wait for pygame init to actually play the music
+    MUSIC = pygame.mixer.music.load(os.path.join(root, "quack_music.mp3"))
+    pygame.mixer.music.play(-1)  # loops the music
+
+    # why is Sound in caps!!!
+    SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "blaster.wav"))
+    ROCKET_SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "pew.wav"))
+    COLLISION_SOUND = pygame.mixer.Sound(os.path.join(root, "quack.wav"))
+    HIT_SOUND = pygame.mixer.Sound(os.path.join(root, "ship_explosion.wav"))
+
 
     p1 = Player(200, 200, 40, 60, (0, 0, 255))
     p1_server_data_resp = n.get_p()
@@ -522,26 +101,26 @@ def main():
 
     # lost logic
     lost = False
-    
+
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
     light = Light()
-    
+
     shoot_counter = 0
 
     while running:
         ship_data = n.send(p1_server_data_resp)
         try:
             modules = ship_data['modules']
-            # Modules are using capitals for    
+            # Modules are using capitals for
             engine_power = ship_data['Engines']
             o2_power = ship_data['O2']
 
         except:
-            if not type(ship_data) is str:
+            if not type(ship_data) is str and DEBUG:
                 print(ship_data)
+
         shoot_counter += 1
-        # p2 = n.send(p1)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
             # starts the timer
@@ -556,7 +135,8 @@ def main():
             if event.type == pygame.USEREVENT:
                 shipOxygen.count()
                 shipOxygen.terminate()  # only stops the timer when it reaches 0
-            
+
+            # keydown thanks to https://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_9:
                     if light_cycle == 2:
@@ -565,7 +145,7 @@ def main():
                         light_cycle += 1
 
                     light.update_light(light_cycle)
-                
+
                 if event.key == pygame.K_8:
                     if bullet_cycle == 3:
                         bullet_cycle = 0
@@ -573,20 +153,28 @@ def main():
                         bullet_cycle += 1
 
                     p1.change_bullet(BULLET_TYPES[bullet_cycle])
-                
+
                 if event.key == pygame.K_7:
                     if engine_cycle == 2:
                         engine_cycle = 0
                     else:
                         engine_cycle += 1
-                    
+
                     p1.change_engine_power(engine_cycle)
-                    
+
+                if event.key == pygame.K_SPACE:
+                    if shoot_counter >= 6:
+                        p1.shoot(bullets)
+                        SHOOT_SOUND.play()
+                        shoot_counter = 0
+
+
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
+                return
 
         # listen for loss
         if shipOxygen.get_count() == 0:
@@ -614,26 +202,25 @@ def main():
                                 40,
                                 (255, 0, 0))
                 enemies.append(enemy)
-            
+
             # level 3
             if level == 2:
                 boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
                 enemies.append(boss)
-                print("the boss has spawned")
+                if DEBUG:
+                    print("the boss has spawned")
 
         # game logic starts here
         # player movement
         p1.move()
 
         # bullet logic
-        if shoot_counter >= 6:
-            p1.shoot(bullets)
-            shoot_counter = 0
 
         for bullet in bullets:
             if has_collided(bullet, p1):
                 if bullet.damages_player():
                     p1._health -= 10
+                    HIT_SOUND.play()
                     bullets.remove(bullet)
 
             # this only shoots horizontally
@@ -665,12 +252,13 @@ def main():
                         #       f"{enemy.get_health()}")
                         if not enemy.alive():
                             enemies.remove(enemy)
-                    
+
                     # remove the bullet
                     bullets.pop(bullets.index(bullet))
 
             if has_collided(enemy, p1):
                 p1._health -= 10
+                COLLISION_SOUND.play()
                 if enemy in enemies:
                     if enemy.dieoncollision == True:
                         enemies.remove(enemy)
@@ -684,12 +272,30 @@ def main():
         # oxygen redraw (I have no idea if this even passes right)
         win.blit(font.render(shipOxygen.get_text(), True, (255, 255, 255)),
                  (32, 48))
-        
+
         # I have no idea what this does but it makes the text appear
         # pygame.display.flip()
-        
+
         # for some reason setting this to 60 makes the timer less epileptic
         clock.tick(27)
+
+
+def main_menu() -> None:
+    """Main Menu of the game"""
+    title_font = pygame.font.SysFont("Monospace", 40)
+    run = True
+
+    while run:
+        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+
+    pygame.quit()
 
 
 if __name__ == '__main__':
@@ -702,4 +308,4 @@ if __name__ == '__main__':
     win = pygame.display.set_mode((WIDTH, HEIGHT))
 
     pygame.display.set_caption("Asymetrical Asteroids")
-    main()
+    main_menu()
