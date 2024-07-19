@@ -92,13 +92,17 @@ class Player(Ship):
                                     "green",
                                     -1,
                                     self.bullet_type))
-        print(f"Player shot bullet with type {self.bullet_type}")
+        
+        if DEBUG:
+            print(f"Player shot bullet with type {self.bullet_type}")
 
     def change_bullet(self, bullet: str) -> None:
         """Change the bullet type/element"""
         if bullet in BULLET_TYPES:
             self.bullet_type = bullet
-            print(f"Bullet type has been changed to {bullet}")
+            
+            if DEBUG:
+                print(f"Bullet type has been changed to {bullet}")
 
     def get_bullet_type(self):
         """I don't even know if I need this"""
@@ -110,7 +114,9 @@ class Player(Ship):
         value should only be 0, 1, 2"""
         if value in [0, 1, 2]:
             self._vel = ENGINE_POWER[value]
-            print(f"new engine power is {self._vel}")
+            
+            if DEBUG:
+                print(f"new engine power is {self._vel}")
 
     def move_bullet(self):
         """I have no idea what I am doing"""
@@ -137,8 +143,10 @@ class Enemy(Ship):
     def damage_self(self, projectile: "Projectile") -> None:
         """Damage the enemy"""
         damage = projectile.get_damage()
-        print(self.__str__() + f" has taken {damage}")
         self._health -= damage
+        
+        if DEBUG:
+            print(self.__str__() + f" has taken {damage}")
     
     def alive(self):
         """Returns if the enemy is alive"""

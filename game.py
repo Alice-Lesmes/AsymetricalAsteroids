@@ -6,7 +6,7 @@ import random
 # own imports
 from classes.constants import *
 from classes.ship import Player, Basic, Shooter, Boss
-from classes.oxygen import Oxygen 
+from classes.oxygen import Oxygen
 from classes.light import Light
 from network import *
 
@@ -28,8 +28,6 @@ def redrawWindow(win, player: "Player", enemies: list[int], bullets: list[int],
     # draw bullets
     for bullet in bullets:
         bullet.draw(win)
-
-    # print(f"current state of bullets is {bullets}")
 
     # test size for images
     # enemies are 50x50
@@ -117,7 +115,7 @@ def main():
             o2_power = ship_data['O2']
 
         except:
-            if not type(ship_data) is str:
+            if not type(ship_data) is str and DEBUG:
                 print(ship_data)
         
         shoot_counter += 1
@@ -136,6 +134,7 @@ def main():
                 shipOxygen.count()
                 shipOxygen.terminate()  # only stops the timer when it reaches 0
             
+            # keydown thanks to https://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_9:
                     if light_cycle == 2:
@@ -206,7 +205,8 @@ def main():
             if level == 2:
                 boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
                 enemies.append(boss)
-                print("the boss has spawned")
+                if DEBUG:
+                    print("the boss has spawned")
 
         # game logic starts here
         # player movement
@@ -277,6 +277,24 @@ def main():
         clock.tick(27)
 
 
+def main_menu() -> None:
+    """Main Menu of the game"""
+    title_font = pygame.font.SysFont("Monospace", 40)
+    run = True
+
+    while run:
+        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+
+    pygame.quit()
+    
+
 if __name__ == '__main__':
     pygame.init()
 
@@ -287,4 +305,4 @@ if __name__ == '__main__':
     win = pygame.display.set_mode((WIDTH, HEIGHT))
 
     pygame.display.set_caption("Asymetrical Asteroids")
-    main()
+    main_menu()

@@ -2,6 +2,8 @@ from classes.constants import *
 
 # Initially I only wanted to import START_LIGHT and RADER_POWER but for some
 # reason it doesn't work and using a star import fixes everything apparently
+# this is adapted from
+# https://stackoverflow.com/questions/31038285/python-pygame-game-lighting
 
 
 class Light():

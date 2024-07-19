@@ -3,6 +3,9 @@ import socket
 import pickle
 from classes.constants import *
 
+# courtesy of https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+print(socket.gethostbyname(socket.gethostname()))
+
 class Network():
     def __init__(self) -> None:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,4 +31,5 @@ class Network():
             self.client.send(pickle.dumps(data))
             return pickle.loads(self.client.recv(BYTE_SIZE))
         except socket.error as e:
-            print("Error sending: ", e)
+            if DEBUG:
+                print("Error sending: ", e)

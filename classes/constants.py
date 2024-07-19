@@ -19,6 +19,9 @@ WIDTH = 500
 HEIGHT = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+# variable to enable or disable debug information
+DEBUG = False
+
 
 root = "assets"
 
