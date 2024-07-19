@@ -118,10 +118,6 @@ class Player(Ship):
             if DEBUG:
                 print(f"new engine power is {self._vel}")
 
-    def move_bullet(self):
-        """I have no idea what I am doing"""
-        pass
-
 
 class Enemy(Ship):
     def __init__(self, x: int, y: int, width: int, height: int, colour: str,
@@ -219,6 +215,7 @@ class Shooter(Enemy):
                                       1,
                                       "Standard"))
             self.shoot_counter = 1
+            # ROCKET_SHOOT_SOUND.play()  does not work
         else:
             self.shoot_counter += 1
 

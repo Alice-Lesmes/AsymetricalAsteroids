@@ -70,4 +70,6 @@ class Asteroid(Projectile):
 class Rocket(Projectile):
     def set_img(self):
         rocket = ROCKET_IMG.copy()
+        
+        # flips the rocket upside down
         self.projectile_img = pygame.transform.flip(rocket, False, True)

@@ -34,7 +34,7 @@ def redrawWindow(win, player: "Player", enemies: list[int], bullets: list[int],
     # rockets are 20x80
     # asteroids are 70 x 70
     # pygame.draw.rect(win, (255, 0, 0), (50, 50, 60, 50))
-    
+
     # draw shadow
     filter = pygame.surface.Surface((WIDTH, HEIGHT))
     # the less "grey" the colour actually is, the darker the environment
@@ -70,13 +70,15 @@ def main():
     n = Network()
 
     # load sounds
-    
+
     # I have to wait for pygame init to actually play the music
     MUSIC = pygame.mixer.music.load(os.path.join(root, "quack_music.mp3"))
     pygame.mixer.music.play(-1)  # loops the music
-    
+
     # why is Sound in caps!!!
     SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "blaster.wav"))
+    ROCKET_SHOOT_SOUND = pygame.mixer.Sound(os.path.join(root, "pew.wav"))
+    COLLISION_SOUND = pygame.mixer.Sound(os.path.join(root, "quack.wav"))
     HIT_SOUND = pygame.mixer.Sound(os.path.join(root, "ship_explosion.wav"))
 
 
@@ -99,25 +101,24 @@ def main():
 
     # lost logic
     lost = False
-    
+
     #  initialise external modules that are controlled by phone
     shipOxygen = Oxygen(10)
     light = Light()
-    
+
     shoot_counter = 0
 
     while running:
         ship_data = n.send(p1_server_data_resp)
         try:
             modules = ship_data['modules']
-            # Modules are using capitals for    
+            # Modules are using capitals for
             engine_power = ship_data['Engines']
             o2_power = ship_data['O2']
 
         except:
             if not type(ship_data) is str and DEBUG:
                 print(ship_data)
-        
 
         shoot_counter += 1
         keys = pygame.key.get_pressed()
@@ -134,7 +135,7 @@ def main():
             if event.type == pygame.USEREVENT:
                 shipOxygen.count()
                 shipOxygen.terminate()  # only stops the timer when it reaches 0
-            
+
             # keydown thanks to https://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_9:
@@ -144,7 +145,7 @@ def main():
                         light_cycle += 1
 
                     light.update_light(light_cycle)
-                
+
                 if event.key == pygame.K_8:
                     if bullet_cycle == 3:
                         bullet_cycle = 0
@@ -152,22 +153,22 @@ def main():
                         bullet_cycle += 1
 
                     p1.change_bullet(BULLET_TYPES[bullet_cycle])
-                
+
                 if event.key == pygame.K_7:
                     if engine_cycle == 2:
                         engine_cycle = 0
                     else:
                         engine_cycle += 1
-                    
+
                     p1.change_engine_power(engine_cycle)
-                
+
                 if event.key == pygame.K_SPACE:
                     if shoot_counter >= 6:
                         p1.shoot(bullets)
                         SHOOT_SOUND.play()
                         shoot_counter = 0
 
-                    
+
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
@@ -201,7 +202,7 @@ def main():
                                 40,
                                 (255, 0, 0))
                 enemies.append(enemy)
-            
+
             # level 3
             if level == 2:
                 boss = Boss(WIDTH//2, -1500, 40, 40, (255, 0, 0), 1000)
@@ -251,12 +252,13 @@ def main():
                         #       f"{enemy.get_health()}")
                         if not enemy.alive():
                             enemies.remove(enemy)
-                    
+
                     # remove the bullet
                     bullets.pop(bullets.index(bullet))
 
             if has_collided(enemy, p1):
                 p1._health -= 10
+                COLLISION_SOUND.play()
                 if enemy in enemies:
                     if enemy.dieoncollision == True:
                         enemies.remove(enemy)
@@ -270,10 +272,10 @@ def main():
         # oxygen redraw (I have no idea if this even passes right)
         win.blit(font.render(shipOxygen.get_text(), True, (255, 255, 255)),
                  (32, 48))
-        
+
         # I have no idea what this does but it makes the text appear
         # pygame.display.flip()
-        
+
         # for some reason setting this to 60 makes the timer less epileptic
         clock.tick(27)
 
@@ -294,7 +296,7 @@ def main_menu() -> None:
                 main()
 
     pygame.quit()
-    
+
 
 if __name__ == '__main__':
     pygame.init()
