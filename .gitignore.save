@@ -2,16 +2,7 @@ __pycache__
 TestGame.py
 Android/Phone_Client/.idea
 # Gradle files
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/app
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradle
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/AsymetricAsteroids.zip
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/build.gradle.kts
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradle.properties
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradlew
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/gradlew.bat
-/home/alice/AndroidStudioProjects/AsymetricAsteroids/local.properties
-/home/alice/AndroidStudioProjects/AsymetricAsteroids.gradle/
-build/
+# WHatever just ignore all this stuff
 
 # Local configuration file (sdk path, etc)
 local.properties
