@@ -14,10 +14,10 @@ import net.razorvine.pickle.Unpickler
 import java.net.Socket
 import kotlin.system.exitProcess
 
-class Client(addr : String, port: Int, data: Data) {
+class Client(data: Data) {
     // Needs to be changed depending on the threadedServer.py
-    val SERVER_ADDRESS = addr
-    val SERVER_PORT = port
+    var SERVER_ADDRESS = "192.168.x.x"  // Dummy address
+    var SERVER_PORT = 8000  // Realistically we would keep it on this port
     var pickler = Pickler()     // Allows to pickle data
     var unpickler = Unpickler()     // Allows to unpickle data
     var data =  data
@@ -70,8 +70,6 @@ class Client(addr : String, port: Int, data: Data) {
                 output.write(pickler.dumps(reply))      // Send back data
             }
         }
-            // THis doesn't work, prob cause something on threadedServer.py
-
     }
 
     fun formatReply(data: Data) : String
@@ -90,5 +88,15 @@ class Client(addr : String, port: Int, data: Data) {
         var weaponData = "'weapon': '${data.getWeaponElement()}'"
         var reply : String = "{$modules, $weaponData}"
         return reply
+    }
+
+    fun setAddress(addr : String)
+    {
+        SERVER_ADDRESS = addr
+    }
+
+    fun setPort(port: Int)
+    {
+        SERVER_PORT = port
     }
 }

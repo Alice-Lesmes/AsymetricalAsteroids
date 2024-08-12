@@ -10,21 +10,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,25 +50,31 @@ class MainActivity : ComponentActivity() {
             var client = Client("192.168.122.1")
             client.socket.connect()
         })*/
-        val SERVER_ADDRESS = "192.168.0.12"
-        val PORT = 8000
-        var dataManager = Data()
-        thread {
-            var client = Client(SERVER_ADDRESS, PORT, dataManager)
-            runBlocking { client.connect() }
-
-        }
+        // The data that all the code draws from=
+        val dataManager = Data()
+        val client = Client(dataManager)
+        var showAlert = true
         enableEdgeToEdge()
         setContent {
             AsymetricAsteroidsTheme {
-                // The data that all the code draws from
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    mainView(dataManager)
-                    /*Button(onClick = { println("ALIVE?: " + client.isAlive()) }) {
-                        Text(text = "IS ALIVE?")*/
+                    if (showAlert)
+                    {
+                        ConnectAlert(client = client, onDismiss = {
 
-                    //}
+                            thread {
+                                runBlocking {
+                                    println("Connecting...")
+                                    client.connect()
+                                }
+                            }
+                            showAlert = false
+                        }
+                        )
+                    }
+                    mainView(dataManager, client)
+
 
                 }
             }
@@ -70,9 +82,34 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
-fun mainView(data: Data) {
+fun inputAddress(client: Client)
+{
+    var address by remember {
+        mutableStateOf("192.168.x.x")
+    }
+    var port by remember {
+        mutableIntStateOf(8000)
+    }
+    Column(modifier = Modifier.padding(30.dp)) {
+        TextField(value = address,
+            onValueChange = {address = it; client.setAddress(it)},
+            label = { Text(text = "IP Address:") })
+
+        TextField(value = port.toString(),
+            // Really should fix this so that if a non-int number is added it *doesn't* crash.
+            onValueChange = {port = it.toInt(); client.setPort(it.toInt())},
+            label = { Text(text = "Port:") },
+            // Auto-Switch to num-pad
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+
+        )
+
+    }
+
+}
+@Composable
+fun mainView(data: Data, client: Client) {
     // The main view which holds the smaller views together and inits client connection
 
     var CriticalServerError by remember {
@@ -81,8 +118,7 @@ fun mainView(data: Data) {
     var showAlert by remember {
         mutableStateOf(true)
     }
-
-    // Triggers on first launch and connects to server
+    // Triggers on after prompting for
     if (showAlert) Alert()
     // This would be used if there is no response from the server, but we don't care
     // Just hope for connection, if not, -\_(<: )_/-
@@ -106,11 +142,43 @@ fun mainView(data: Data) {
     ModuleView(data)
 
     // Enable for debugging purposes only. Allows to print data sent to server
-    Button(onClick = { println("Data get!"); data.printAllData() }) {
+    /*Button(onClick = { println("Data get!"); data.printAllData() }) {
         Text(text = "Print DATa!S")
-    }
+    }*/
 }
 
+@Composable
+fun ConnectAlert(onDismiss: () -> Unit, client: Client)
+{
+    var showAlert by remember {
+        mutableStateOf(true)
+    }
+
+    if (showAlert) {
+        AlertDialog(
+            onDismissRequest = { showAlert = false },
+            title = {
+                Text(
+                    "Welcome to the Automated Crew System!",
+                    fontWeight = FontWeight.ExtraBold
+                )
+            },
+            text = {
+                inputAddress(client)
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showAlert = false
+                    onDismiss()
+                })
+                {
+                    // This is the text of the dismiss button
+                    Text(text = "Good luck...")
+                }
+            }
+        )
+    }
+}
 @Composable
 fun Alert() {
     var showAlert by remember {
@@ -210,19 +278,19 @@ fun ModuleView(data: Data) {
             tapText = {
                 // This is bad code, but whatever, it works
                 if (o2Power == 0 && availablePower >= O2.max)
-                    {
-                        o2Power = O2.max
-                        availablePower -= o2Power
+                {
+                    o2Power = O2.max
+                    availablePower -= o2Power
 
-                        data.updatePower(O2.name, o2Power)
+                    data.updatePower(O2.name, o2Power)
 
-                    }
-                    else
-                    {
-                        availablePower += o2Power
-                        o2Power = 0
-                        data.updatePower(O2.name, o2Power)
-                    }},
+                }
+                else
+                {
+                    availablePower += o2Power
+                    o2Power = 0
+                    data.updatePower(O2.name, o2Power)
+                }},
             available_power = availablePower,
             currentPower = o2Power
         )
@@ -311,7 +379,7 @@ fun ElementSelect(data: Data) {
             }
             Row {
                 for (weapon in arrayOf("Green", "Blue"))
-                        ElementalWeapon(
+                    ElementalWeapon(
                         name = weapon,
                         onButtonPress = { CurrentWeapon = weapon;
                             data.updateElement(weapon) },

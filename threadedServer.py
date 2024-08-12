@@ -48,7 +48,7 @@ def threaded_client(conn: socket.socket, addr: str):
     reply = ""
     # The below is not needed, I think, since game.py stores it's own position
     # But commeneted out just in case it breaks
-    conn.send(pickle.dumps("Fuck"))
+    conn.send(pickle.dumps("Placeholder"))
 
     while True:
         try:
