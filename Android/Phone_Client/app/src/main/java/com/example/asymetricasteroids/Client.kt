@@ -83,7 +83,7 @@ class Client(data: Data) {
             modules += "'$module': ${data.getPower(module)}, "
         }
         modules = modules.removeSuffix(", ")
-        modules += "}, "
+        modules += "}"
 
         var weaponData = "'weapon': '${data.getWeaponElement()}'"
         var reply : String = "{$modules, $weaponData}"
