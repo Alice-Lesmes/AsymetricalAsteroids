@@ -117,6 +117,17 @@ class Player(Ship):
             
             if DEBUG:
                 print(f"new engine power is {self._vel}")
+    
+    """The following functions are for use by the joystick"""
+    def joystickMoveX(self, multiplier: float) -> None:
+        moveValue = multiplier*self._vel
+        
+        self._x += moveValue
+    
+    def joystickMoveY(self, multiplier: float) -> None:
+        moveValue = multiplier*self._vel
+        print(f"calculated y value is {moveValue}")
+        self._y += multiplier*self._vel
 
 
 class Enemy(Ship):

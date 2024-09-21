@@ -10,6 +10,7 @@ from classes.constants import *
 from classes.ship import Player, Basic, Shooter, Boss
 from classes.oxygen import Oxygen
 from classes.light import Light
+from classes.joystick import Joystick
 from network import *
 
 
@@ -110,17 +111,7 @@ def main():
 
     shoot_counter = 0
     
-    # initialise the joystick
-    board = pyfirmata.Arduino(DEV_PORT)
-
-    it = pyfirmata.util.Iterator(board)
-    it.start()
-
-    # write to selector
-    board.digital[SELECTOR_PORT].write(1)
-    
-    y_input = board.get_pin(ANALOG_Y)
-    x_input = board.get_pin(ANALOG_X)
+    joystick = Joystick(p1)
 
     while running:
         ship_data = n.send(p1_server_data_resp)
@@ -134,14 +125,8 @@ def main():
             if not type(ship_data) is str and DEBUG:
                 print(ship_data)
         
-        # Serial joystick movement
-
-        # 0 is left for x, 1 is right for x
-        # but 1 is down for y, and 0 is up for y
-        x_value = x_input.read()
-        y_value = y_input.read()
-        print(f"X: {x_value}, Y: {y_value}")
-        time.sleep(0.001)
+        joystick.print()
+        
 
         shoot_counter += 1
         keys = pygame.key.get_pressed()
@@ -236,6 +221,7 @@ def main():
         # game logic starts here
         # player movement
         p1.move()
+        joystick.move()
 
         # bullet logic
 
