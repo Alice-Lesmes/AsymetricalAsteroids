@@ -22,9 +22,13 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 # variable to enable or disable debug information
 DEBUG = False
 
+# Port for serial input
+DEV_PORT = '/dev/ttyACM0'
+SELECTOR_PORT = 2
+ANALOG_X = "a:1:i"
+ANALOG_Y = "a:0:i"
 
 root = "assets"
-
 
 YELLOW_LASER = pygame.image.load(os.path.join(root, "pixel_laser_yellow.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join(root, "pixel_ship_yellow.png"))

@@ -2,6 +2,8 @@ import pygame
 import os.path
 import sys
 import random
+import pyfirmata
+import time
 
 # own imports
 from classes.constants import *
@@ -107,6 +109,18 @@ def main():
     light = Light()
 
     shoot_counter = 0
+    
+    # initialise the joystick
+    board = pyfirmata.Arduino(DEV_PORT)
+
+    it = pyfirmata.util.Iterator(board)
+    it.start()
+
+    # write to selector
+    board.digital[SELECTOR_PORT].write(1)
+    
+    y_input = board.get_pin(ANALOG_Y)
+    x_input = board.get_pin(ANALOG_X)
 
     while running:
         ship_data = n.send(p1_server_data_resp)
@@ -119,6 +133,15 @@ def main():
         except:
             if not type(ship_data) is str and DEBUG:
                 print(ship_data)
+        
+        # Serial joystick movement
+
+        # 0 is left for x, 1 is right for x
+        # but 1 is down for y, and 0 is up for y
+        x_value = x_input.read()
+        y_value = y_input.read()
+        print(f"X: {x_value}, Y: {y_value}")
+        time.sleep(0.001)
 
         shoot_counter += 1
         keys = pygame.key.get_pressed()

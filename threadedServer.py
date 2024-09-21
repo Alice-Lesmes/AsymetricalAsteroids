@@ -2,6 +2,7 @@ import socket
 from _thread import *
 import sys
 import pickle
+import ast
 # Add the import class later when we have the correct data to send
 # from PLAYER_CLASS import PLAYER
 from classes.constants import *
@@ -60,10 +61,9 @@ def threaded_client(conn: socket.socket, addr: str):
             if not data:
                 print("Disconnected!")
                 break
-            elif type(data) is dict:        # Phone only sends dict anyways...
-                # If phone -> send data from game.py
-                reply = player_data[0]
-                player_data[1] = data      # Update the stored data
+            if (data.startswith("{")):
+                # Turn str -> dict
+                data = ast.literal_eval(data)     # Update the stored data
             else:
                 reply = player_data[1]
                 player_data[0] = data      # Update the stored data (not really needed for now)
