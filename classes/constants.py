@@ -21,12 +21,14 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # variable to enable or disable debug information
 DEBUG = False
+ENABLE_JOYSTICK = True
 
 # Port for serial input
 DEV_PORT = '/dev/ttyACM0'
 SELECTOR_PORT = 2
 ANALOG_X = "a:1:i"
 ANALOG_Y = "a:0:i"
+SHOOT_PIN = "d:3:i"
 OFFSET_VALUE = 1000
 
 root = "assets"

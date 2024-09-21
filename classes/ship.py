@@ -77,7 +77,7 @@ class Player(Ship):
 
         self._rect = (self._x, self._y, self._width, self._height)
 
-    def shoot(self, bullets: list[int]) -> None:
+    def shoot(self, bullets: list[int], shootSound) -> None:
         """
         Parameters:
             bullets: list of all bullets in the game
@@ -95,6 +95,8 @@ class Player(Ship):
         
         if DEBUG:
             print(f"Player shot bullet with type {self.bullet_type}")
+        
+        shootSound.play()
 
     def change_bullet(self, bullet: str) -> None:
         """Change the bullet type/element"""

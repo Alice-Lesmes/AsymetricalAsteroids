@@ -10,7 +10,7 @@ from classes.constants import *
 from classes.ship import Player, Basic, Shooter, Boss
 from classes.oxygen import Oxygen
 from classes.light import Light
-from classes.joystick import Joystick
+from classes.controller import Controller
 from network import *
 
 
@@ -110,8 +110,8 @@ def main():
     light = Light()
 
     shoot_counter = 0
-    
-    joystick = Joystick(p1)
+
+    controller = Controller(p1)
 
     while running:
         ship_data = n.send(p1_server_data_resp)
@@ -124,11 +124,10 @@ def main():
         except:
             if not type(ship_data) is str and DEBUG:
                 print(ship_data)
-        
-        joystick.print()
-        
 
-        shoot_counter += 1
+        if shoot_counter < 7:
+            shoot_counter += 1
+
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
             # starts the timer
@@ -172,8 +171,8 @@ def main():
 
                 if event.key == pygame.K_SPACE:
                     if shoot_counter >= 6:
-                        p1.shoot(bullets)
-                        SHOOT_SOUND.play()
+                        p1.shoot(bullets, SHOOT_SOUND)
+                        # SHOOT_SOUND.play()
                         shoot_counter = 0
 
 
@@ -221,7 +220,8 @@ def main():
         # game logic starts here
         # player movement
         p1.move()
-        joystick.move()
+        controller.move()
+        controller.shoot(bullets, SHOOT_SOUND)
 
         # bullet logic
 
